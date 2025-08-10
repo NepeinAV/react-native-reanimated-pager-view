@@ -51,10 +51,6 @@ const pages = [
   { id: 'page3', color: '#45b7d1', title: 'Page 3' },
 ];
 
-const handlePageSelected = (page: number) => {
-  console.log('Selected page:', page);
-};
-
 export default function App() {
   const children = useMemo(
     () =>
@@ -67,11 +63,7 @@ export default function App() {
   );
 
   return (
-    <PagerView
-      style={{ flex: 1 }}
-      initialPage={0}
-      onPageSelected={handlePageSelected}
-    >
+    <PagerView>
       {children}
     </PagerView>
   );
@@ -311,10 +303,6 @@ const LAZY_PAGES = [
   { id: 'page3', title: 'Page 3', content: 'Heavy content 3' },
 ];
 
-const handlePageSelected = (page: number) => {
-  console.log('Page loaded:', page);
-};
-
 const LazyPagerExample = () => {
   const children = useMemo(
     () => LAZY_PAGES.map((page) => <LazyPage key={page.id} data={page} />),
@@ -325,7 +313,6 @@ const LazyPagerExample = () => {
     <PagerView
       lazy={true}
       lazyPageLimit={1}
-      onPageSelected={handlePageSelected}
     >
       {children}
     </PagerView>
