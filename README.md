@@ -2,6 +2,8 @@
 
 High-performance PagerView component for React Native, built on `react-native-reanimated v3` and `react-native-gesture-handler`. Enhanced customization capabilities and smooth animations running on the native thread.
 
+<a href="https://www.npmjs.com/package/react-native-reanimated-pager-view"><img alt="NPM Version" src="https://img.shields.io/npm/v/react-native-reanimated-pager-view"></a>
+
 ## ✨ Features
 
 - 🚀 **High Performance** - uses `react-native-reanimated v3` for smooth animations on the native thread
@@ -14,6 +16,7 @@ High-performance PagerView component for React Native, built on `react-native-re
 - 🔄 **Dynamic management** - add/remove pages with automatic positioning
 
 https://github.com/user-attachments/assets/2fbde32b-b33b-4d79-bf62-89857b5fe499
+
 
 ## 🚀 Quick Start
 
