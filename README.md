@@ -13,6 +13,8 @@ High-performance PagerView component for React Native, built on `react-native-re
 - 👀 **Visibility tracking** - track visible pages on screen
 - 🔄 **Dynamic management** - add/remove pages with automatic positioning
 
+https://github.com/user-attachments/assets/2fbde32b-b33b-4d79-bf62-89857b5fe499
+
 ## 🚀 Quick Start
 
 ### Installation
