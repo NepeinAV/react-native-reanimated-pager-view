@@ -1,5 +1,5 @@
 import { memo, type PropsWithChildren, useCallback, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, type ViewStyle } from 'react-native';
 import Animated, {
   runOnJS,
   type SharedValue,
@@ -10,8 +10,13 @@ import Animated, {
 
 import { PageOnscreenContext } from './context';
 import { useCustomClippingReceiver } from './hooks';
-import { type PagerViewProps } from './types';
+import {
+  type PagerViewProps,
+  type PageInterpolator,
+  type ScrollPosition,
+} from './types';
 import { checkPageIndexInRange } from './utils';
+import { PageWithInterpolation } from './PageWithInterpolation';
 
 const styles = StyleSheet.create({
   flex: {
@@ -29,6 +34,8 @@ type Props = PropsWithChildren<{
   currentPage: SharedValue<number>;
   canRemoveClippedPages: SharedValue<number>;
   isRemovingClippedPagesEnabled: boolean;
+  pageInterpolator?: PageInterpolator;
+  scrollPosition: SharedValue<ScrollPosition>;
 }> &
   Pick<
     Required<PagerViewProps>,
@@ -47,6 +54,8 @@ const PageContainer = ({
   trackOnscreenPageLimit,
   canRemoveClippedPages,
   isRemovingClippedPagesEnabled,
+  pageInterpolator,
+  scrollPosition,
 }: Props) => {
   const [isMounted, setIsMounted] = useState(() =>
     lazy
@@ -109,26 +118,43 @@ const PageContainer = ({
     };
   });
 
-  return (
-    <View
-      style={[
-        { width, paddingHorizontal: pageMargin / 2 },
-        styles.flex,
-        styles.hidden,
-      ]}
-      removeClippedSubviews={isRemovingClippedPagesEnabled}
-    >
+  const renderPage = (style?: ViewStyle) => {
+    return (
       <Animated.View
-        style={[styles.flex, styles.hidden, mountAnimation, clippedPageStyle]}
+        style={[
+          { width, paddingHorizontal: pageMargin / 2 },
+          styles.flex,
+          styles.hidden,
+          style,
+        ]}
+        removeClippedSubviews={isRemovingClippedPagesEnabled}
       >
-        {isMounted ? (
-          <PageOnscreenContext.Provider value={isOnscreen}>
-            {children}
-          </PageOnscreenContext.Provider>
-        ) : null}
+        <Animated.View
+          style={[styles.flex, styles.hidden, mountAnimation, clippedPageStyle]}
+        >
+          {isMounted ? (
+            <PageOnscreenContext.Provider value={isOnscreen}>
+              {children}
+            </PageOnscreenContext.Provider>
+          ) : null}
+        </Animated.View>
       </Animated.View>
-    </View>
-  );
+    );
+  };
+
+  if (pageInterpolator) {
+    return (
+      <PageWithInterpolation
+        pageInterpolator={pageInterpolator}
+        scrollPosition={scrollPosition}
+        pageIndex={pageIndex}
+      >
+        {renderPage}
+      </PageWithInterpolation>
+    );
+  }
+
+  return renderPage();
 };
 
 const PageContainerMemo = memo(PageContainer);

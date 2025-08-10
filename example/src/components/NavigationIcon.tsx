@@ -10,14 +10,12 @@ interface NavigationIconProps {
   icon: string;
   animatedPage: Animated.SharedValue<number>;
   index: number;
-  isActive: boolean;
 }
 
 export const NavigationIcon: React.FC<NavigationIconProps> = ({
   icon,
   animatedPage,
   index,
-  isActive,
 }) => {
   const iconAnimatedStyle = useAnimatedStyle(() => {
     const scale = interpolate(
@@ -33,13 +31,7 @@ export const NavigationIcon: React.FC<NavigationIconProps> = ({
   });
 
   return (
-    <Animated.Text
-      style={[
-        styles.navIcon,
-        iconAnimatedStyle,
-        isActive ? styles.activeNavIcon : styles.inactiveNavIcon,
-      ]}
-    >
+    <Animated.Text style={[styles.navIcon, iconAnimatedStyle]}>
       {icon}
     </Animated.Text>
   );

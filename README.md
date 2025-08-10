@@ -8,6 +8,7 @@ High-performance PagerView component for React Native, built on `react-native-re
 
 - 🚀 **High Performance** - uses `react-native-reanimated v3` for smooth animations on the native thread
 - 🎨 **Full Customization** - configure gestures, animations and behavior through callbacks
+- ✨ **Custom Page Animations** - create stunning page transitions with `pageInterpolator`
 - 📱 **Platform Support** - iOS and Android
 - 🔧 **TypeScript** - complete type safety out of the box
 - 🎯 **Lazy loading** - deferred page loading for performance optimization
@@ -16,7 +17,6 @@ High-performance PagerView component for React Native, built on `react-native-re
 - 🔄 **Dynamic management** - add/remove pages with automatic positioning
 
 https://github.com/user-attachments/assets/2fbde32b-b33b-4d79-bf62-89857b5fe499
-
 
 ## 🚀 Quick Start
 
@@ -62,11 +62,7 @@ export default function App() {
     []
   );
 
-  return (
-    <PagerView>
-      {children}
-    </PagerView>
-  );
+  return <PagerView>{children}</PagerView>;
 }
 ```
 
@@ -115,6 +111,21 @@ This prevents gesture conflicts between the PagerView's horizontal pan gesture a
 | `overdragThreshold`        | `number` | `100`   | Threshold for triggering overdrag callback                                                              |
 | `panVelocityThreshold`     | `number` | `500`   | Minimum velocity for page switching. Note: page will switch if scrolled past 50% regardless of velocity |
 | `pageActivationThreshold`  | `number` | `0.8`   | Visibility percentage for page activation                                                               |
+
+### Page Animations
+
+| Property           | Type               | Description                                                                      |
+| ------------------ | ------------------ | -------------------------------------------------------------------------------- |
+| `pageInterpolator` | `PageInterpolator` | Custom function for animating pages based on scroll position (must be a worklet) |
+
+The `pageInterpolator` function receives:
+
+- `distance`: number - The distance between current scroll position and page index (can be negative)
+- `pageIndex`: number - The page index that is being interpolated
+
+And should return a `ViewStyle` object with transform/animation properties.
+
+⚠️ **Important**: The `pageInterpolator` function must be a worklet (use `'worklet';` directive).
 
 ### Callbacks
 
@@ -292,6 +303,58 @@ const VisibilityTrackingExample = () => {
 
 ## 🎯 Advanced Examples
 
+### Custom Page Animations
+
+```tsx
+import React, { useMemo } from 'react';
+import { interpolate } from 'react-native-reanimated';
+import {
+  PagerView,
+  type PageInterpolator,
+} from 'react-native-reanimated-pager-view';
+
+const ANIMATION_PAGES = [
+  { id: 'page1', title: 'Page 1', color: '#ff6b6b' },
+  { id: 'page2', title: 'Page 2', color: '#4ecdc4' },
+  { id: 'page3', title: 'Page 3', color: '#45b7d1' },
+];
+
+const pageInterpolator: PageInterpolator = ({ distance }) => {
+  'worklet';
+
+  const rotateY = interpolate(distance, [-1, 0, 1], [60, 0, -60], 'clamp');
+  const scale = interpolate(distance, [-1, 0, 1], [0.8, 1, 0.8], 'clamp');
+
+  return {
+    transform: [{ perspective: 1000 }, { rotateY: `${rotateY}deg` }, { scale }],
+  };
+};
+
+const CustomAnimationPager = () => {
+  const children = useMemo(
+    () =>
+      ANIMATION_PAGES.map((page) => (
+        <View
+          key={page.id}
+          style={{
+            flex: 1,
+            backgroundColor: page.color,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <Text style={{ fontSize: 24, color: 'white', fontWeight: 'bold' }}>
+            {page.title}
+          </Text>
+        </View>
+      )),
+    []
+  );
+
+  return <PagerView pageInterpolator={pageInterpolator}>{children}</PagerView>;
+};
+```
+
 ### Lazy Loading
 
 ```tsx
@@ -310,10 +373,7 @@ const LazyPagerExample = () => {
   );
 
   return (
-    <PagerView
-      lazy={true}
-      lazyPageLimit={1}
-    >
+    <PagerView lazy={true} lazyPageLimit={1}>
       {children}
     </PagerView>
   );

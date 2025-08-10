@@ -63,6 +63,14 @@ export type PagerViewProps = {
   gestureConfiguration?: (gesture: PanGesture) => PanGesture;
 
   /**
+   * Function to customize page animations based on scroll position
+   * @param distance - The distance between current scroll position and page index (offsetX.value / pageWidth - index)
+   * @param index - The page index
+   * @returns ViewStyle object with animation styles
+   */
+  pageInterpolator?: PageInterpolator;
+
+  /**
    * Callback triggered when overdrag threshold is reached
    */
   onOverdrag?: (side: 'left' | 'right') => void;
@@ -143,11 +151,16 @@ export type PagerViewProps = {
 
   onPageSelected?: (page: number) => void;
   onPageScrollStateChanged?: (state: ScrollState) => void;
-  onPageScroll?: (event: { position: number; offset: number }) => void;
+  onPageScroll?: (event: ScrollPosition) => void;
   onDragStart?: () => void;
   onDragEnd?: () => void;
   onInitialMeasure?: () => void;
 };
+
+export type PageInterpolator = (params: {
+  distance: number;
+  pageIndex: number;
+}) => ViewStyle;
 
 export type PagerViewRef = {
   setPage: (page: number) => void;
@@ -155,3 +168,8 @@ export type PagerViewRef = {
 };
 
 export type ScrollState = 'idle' | 'dragging' | 'settling';
+
+export type ScrollPosition = {
+  position: number;
+  offset: number;
+};

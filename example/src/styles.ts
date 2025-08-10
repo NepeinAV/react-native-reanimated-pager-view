@@ -87,24 +87,13 @@ export const styles = StyleSheet.create({
     fontSize: 20,
     marginBottom: 2,
     lineHeight: 22,
-  },
-  activeNavIcon: {
     color: '#FFFFFF',
-  },
-  inactiveNavIcon: {
-    color: CONSTANTS.COLORS.TEXT_SECONDARY,
   },
   navLabel: {
     fontSize: 10,
     fontWeight: '500',
     lineHeight: 12,
     letterSpacing: 0.1,
-  },
-  activeNavLabel: {
     color: '#FFFFFF',
-    fontWeight: '600',
-  },
-  inactiveNavLabel: {
-    color: CONSTANTS.COLORS.TEXT_SECONDARY,
   },
 });

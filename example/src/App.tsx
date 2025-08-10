@@ -6,18 +6,17 @@ import {
   View,
   TouchableOpacity,
   Dimensions,
-  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {
   PagerView,
   type PagerViewRef,
+  type PageInterpolator,
 } from 'react-native-reanimated-pager-view';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSpring,
   interpolate,
 } from 'react-native-reanimated';
 import {
@@ -34,15 +33,25 @@ import { NotificationsBottomSheet } from './components/NotificationsBottomSheet'
 import { styles as appStyles } from './styles';
 import { CONSTANTS } from './constants';
 
+const { width: screenWidth } = Dimensions.get('window');
+
+const pageInterpolator: PageInterpolator = ({ distance }) => {
+  'worklet';
+
+  const rotateY = interpolate(distance, [-1, 0, 1], [60, 0, -60], 'clamp');
+  const scale = interpolate(distance, [-1, 0, 1], [0.8, 1, 0.8], 'clamp');
+
+  return {
+    transform: [{ perspective: 1000 }, { rotateY: `${rotateY}deg` }, { scale }],
+  };
+};
+
 const App = () => {
-  const [currentPage, setCurrentPage] = useState(0);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const animatedPage = useSharedValue(0);
   const notificationsBottomSheetRef = useRef<BottomSheetModal>(null);
 
   const ref = useRef<PagerViewRef>(null);
-
-  const { width: screenWidth } = useWindowDimensions();
 
   const pages = useMemo(
     () => [
@@ -52,10 +61,6 @@ const App = () => {
     ],
     []
   );
-
-  const onPageSelected = useCallback((page: number) => {
-    setCurrentPage(page);
-  }, []);
 
   const onPageScroll = useCallback(
     (e: { position: number; offset: number }) => {
@@ -98,14 +103,9 @@ const App = () => {
     (pageIndex: number) => {
       if (pageIndex < 0 || pageIndex >= pages.length) return;
 
-      if (pageIndex !== currentPage) {
-        setCurrentPage(pageIndex);
-        animatedPage.value = withSpring(pageIndex);
-      }
-
       ref.current?.setPage(pageIndex);
     },
-    [pages.length, currentPage, animatedPage]
+    [pages.length]
   );
 
   const renderPage = useCallback(
@@ -128,7 +128,7 @@ const App = () => {
   );
 
   const memoizedPages = useMemo(() => {
-    return pages.map((page) => (
+    return pages.map((page, _index) => (
       <View key={page.id} style={appStyles.page}>
         {renderPage(page.id)}
       </View>
@@ -157,11 +157,11 @@ const App = () => {
 
               <PagerView
                 ref={ref}
-                onPageSelected={onPageSelected}
                 onPageScroll={onPageScroll}
                 overdrag={true}
                 scrollEnabled={true}
-                removeClippedPages
+                removeClippedPages={false}
+                pageInterpolator={pageInterpolator}
               >
                 {memoizedPages}
               </PagerView>
@@ -172,8 +172,6 @@ const App = () => {
                 />
 
                 {pages.map((page, index) => {
-                  const isActive = index === currentPage;
-
                   return (
                     <TouchableOpacity
                       key={page.id}
@@ -184,18 +182,8 @@ const App = () => {
                         icon={page.icon}
                         animatedPage={animatedPage}
                         index={index}
-                        isActive={isActive}
                       />
-                      <Text
-                        style={[
-                          appStyles.navLabel,
-                          isActive
-                            ? appStyles.activeNavLabel
-                            : appStyles.inactiveNavLabel,
-                        ]}
-                      >
-                        {page.title}
-                      </Text>
+                      <Text style={appStyles.navLabel}>{page.title}</Text>
                     </TouchableOpacity>
                   );
                 })}

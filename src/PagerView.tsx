@@ -19,6 +19,7 @@ import Animated, {
   runOnUI,
   useAnimatedReaction,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
@@ -66,6 +67,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       overdragThreshold = 100,
       overdragResistanceFactor = 0.7,
       panVelocityThreshold = 500,
+      pageInterpolator,
     },
     ref
   ) => {
@@ -269,14 +271,22 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       [imperativeScrollToPage]
     );
 
+    const scrollPosition = useDerivedValue(() => {
+      const value = offsetX.value;
+
+      const position = Math.floor(-value / pageWidth);
+      const offset = -value / pageWidth - position;
+
+      return { position, offset };
+    });
+
     useAnimatedReaction(
-      () => offsetX.value,
+      () => scrollPosition.value,
       (value) => {
-        const position = Math.floor(-value / pageWidth);
-        const offset = -value / pageWidth - position;
+        const { position, offset } = value;
 
         if (onPageScroll) {
-          onPageScroll({ position, offset });
+          onPageScroll(value);
         }
 
         if (scrollState.value === 'idle') {
@@ -392,10 +402,6 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       panGesture.activeOffsetX([-10, 10]).failOffsetY([-30, 30]);
     }
 
-    if (Platform.OS === 'ios') {
-      panGesture.activeOffsetX([-10, 10]);
-    }
-
     if (gestureConfiguration) {
       panGesture = gestureConfiguration(panGesture);
     }
@@ -420,6 +426,8 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
           trackOnscreenPageLimit={trackOnscreenPageLimit}
           canRemoveClippedPages={canRemoveClippedPages}
           isRemovingClippedPagesEnabled={removeClippedPages}
+          pageInterpolator={pageInterpolator}
+          scrollPosition={scrollPosition}
         >
           {child}
         </PageContainer>
