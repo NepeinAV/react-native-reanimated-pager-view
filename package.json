@@ -42,8 +42,7 @@
   },
   "keywords": [
     "react-native",
-    "ios",
-    "android"
+    "react-native-pager-view"
   ],
   "repository": {
     "type": "git",
