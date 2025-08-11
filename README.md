@@ -19,6 +19,27 @@ High-performance PagerView component for React Native, built on `react-native-re
 
 https://github.com/user-attachments/assets/340566eb-deca-47a9-b67c-7b7f6ec691d3
 
+## 🗂️ Table of Contents
+
+- [📚 API Documentation](#-api-documentation)
+  - [Basic Properties](#basic-properties)
+  - [Animation Customization](#animation-customization)
+  - [Page Animations](#page-animations)
+  - [Callbacks](#callbacks)
+  - [Gesture Customization](#gesture-customization)
+  - [Performance](#performance)
+  - [Page Visibility Tracking](#page-visibility-tracking)
+  - [Page Management](#page-management)
+  - [Ref Methods](#ref-methods)
+- [👀 Page Visibility Tracking](#-page-visibility-tracking)
+- [📱 Vertical Mode](#-vertical-mode)
+- [🎯 Advanced Examples](#-advanced-examples)
+  - [Custom Page Animations](#custom-page-animations)
+  - [Lazy Loading](#lazy-loading)
+  - [Gesture Customization](#gesture-customization-1)
+- [🔧 React Navigation Integration](#-react-navigation-integration)
+- [⚡ Performance Optimization](#-performance-optimization)
+
 ## 🚀 Quick Start
 
 ### Installation
@@ -82,7 +103,6 @@ function MyPageWithHorizontalScroll() {
         data={items}
         horizontal
         renderItem={({ item }) => <ItemComponent item={item} />}
-        showsHorizontalScrollIndicator={false}
       />
     </View>
   );
@@ -149,7 +169,7 @@ And should return a `ViewStyle` object with transform/animation properties.
 | ---------------------- | ------------------------------- | --------------------------------- |
 | `gestureConfiguration` | `(gesture: Gesture) => Gesture` | Function to customize pan gesture |
 
-### Performance Optimization
+### Performance
 
 | Property             | Type      | Default | Description                                                                                                  |
 | -------------------- | --------- | ------- | ------------------------------------------------------------------------------------------------------------ |
