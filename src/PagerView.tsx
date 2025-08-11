@@ -10,7 +10,7 @@ import {
   useState,
   useEffect,
 } from 'react';
-import { Dimensions, Platform, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   cancelAnimation,
@@ -42,9 +42,11 @@ import {
   isArrayEqual,
 } from './utils';
 
-const ANDROID_ACTIVE_OFFSET: [number, number] = [-10, 10];
-const ANDROID_FAIL_OFFSET: [number, number] = [-30, 30];
-const IOS_ACTIVE_OFFSET: [number, number] = [-5, 5];
+type OffsetTuple = [number, number];
+
+const ANDROID_ACTIVE_OFFSET: OffsetTuple = [-10, 10];
+const ANDROID_FAIL_OFFSET: OffsetTuple = [-30, 30];
+const IOS_ACTIVE_OFFSET: OffsetTuple = [-5, 5];
 
 const NEXT_PAGE_VISIBLE_PART_THRESHOLD = 0.5;
 
@@ -82,8 +84,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
     },
     ref
   ) => {
-    const { width: windowWidth, height: windowHeight } =
-      Dimensions.get('window');
+    const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
     const isVertical = orientation === 'vertical';
 
