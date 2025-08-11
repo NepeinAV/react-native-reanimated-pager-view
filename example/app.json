@@ -42,8 +42,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "ff4bb11f-f258-4012-bf10-53b8057b735f"
+        "projectId": "9071f702-9664-49aa-8dd1-804b7b472fdb"
       }
-    }
+    },
+    "owner": "nepeinav"
   }
 }

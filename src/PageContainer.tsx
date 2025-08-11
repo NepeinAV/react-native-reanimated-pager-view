@@ -14,6 +14,7 @@ import {
   type PagerViewProps,
   type PageInterpolator,
   type ScrollPosition,
+  type Orientation,
 } from './types';
 import { checkPageIndexInRange } from './utils';
 import { PageWithInterpolation } from './PageWithInterpolation';
@@ -28,7 +29,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = PropsWithChildren<{
-  width: number;
+  size: number;
   pageMargin: number;
   pageIndex: number;
   currentPage: SharedValue<number>;
@@ -36,6 +37,7 @@ type Props = PropsWithChildren<{
   isRemovingClippedPagesEnabled: boolean;
   pageInterpolator?: PageInterpolator;
   scrollPosition: SharedValue<ScrollPosition>;
+  orientation: Orientation;
 }> &
   Pick<
     Required<PagerViewProps>,
@@ -43,7 +45,7 @@ type Props = PropsWithChildren<{
   >;
 
 const PageContainer = ({
-  width,
+  size,
   pageMargin,
   children,
   pageIndex,
@@ -56,6 +58,7 @@ const PageContainer = ({
   isRemovingClippedPagesEnabled,
   pageInterpolator,
   scrollPosition,
+  orientation,
 }: Props) => {
   const [isMounted, setIsMounted] = useState(() =>
     lazy
@@ -74,11 +77,12 @@ const PageContainer = ({
   );
 
   const { clippedPageStyle } = useCustomClippingReceiver({
-    width,
+    size,
     currentPage,
     pageIndex,
     canRemoveClippedPages,
     isRemovingClippedPagesEnabled,
+    orientation,
   });
 
   const setState = useCallback(
@@ -119,10 +123,14 @@ const PageContainer = ({
   });
 
   const renderPage = (style?: ViewStyle) => {
+    const isVertical = orientation === 'vertical';
+
     return (
       <Animated.View
         style={[
-          { width, paddingHorizontal: pageMargin / 2 },
+          isVertical
+            ? { height: size, paddingVertical: pageMargin / 2 }
+            : { width: size, paddingHorizontal: pageMargin / 2 },
           styles.flex,
           styles.hidden,
           style,

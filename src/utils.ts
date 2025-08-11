@@ -1,21 +1,23 @@
-export const getOverdragOffset = (offset: number, contentWidth: number) => {
+import type { OverdragSide } from './types';
+
+export const getOverdragOffset = (offset: number, contentSize: number) => {
   'worklet';
 
   if (offset > 0) {
     return offset;
   }
 
-  if (offset < -contentWidth) {
-    return offset + contentWidth;
+  if (offset < -contentSize) {
+    return offset + contentSize;
   }
 
   return 0;
 };
 
-export const getPageOffset = (page: number, pageWidth: number) => {
+export const getPageOffset = (page: number, pageSize: number) => {
   'worklet';
 
-  return page * -pageWidth;
+  return page * -pageSize;
 };
 
 export const checkPageIndexInRange = (
@@ -36,4 +38,19 @@ export const isArrayEqual = <T>(a: T[], b: T[]): boolean => {
   }
 
   return true;
+};
+
+export const getOverdragSide = (
+  overdragOffset: number,
+  isVertical: boolean
+): OverdragSide => {
+  'worklet';
+
+  const isPositive = overdragOffset > 0;
+
+  if (isVertical) {
+    return isPositive ? 'top' : 'bottom';
+  }
+
+  return isPositive ? 'left' : 'right';
 };

@@ -15,6 +15,7 @@ High-performance PagerView component for React Native, built on `react-native-re
 - 🖐️ **Overdrag effect** - iOS-like bounce effect when exceeding boundaries
 - 👀 **Visibility tracking** - track visible pages on screen
 - 🔄 **Dynamic management** - add/remove pages with automatic positioning
+- 📱 **Vertical Mode** - support for vertical scrolling
 
 https://github.com/user-attachments/assets/2fbde32b-b33b-4d79-bf62-89857b5fe499
 
@@ -94,14 +95,15 @@ This prevents gesture conflicts between the PagerView's horizontal pan gesture a
 
 ### Basic Properties
 
-| Property        | Type          | Default | Description                            |
-| --------------- | ------------- | ------- | -------------------------------------- |
-| `children`      | `ReactNode[]` | -       | Array of pages to display              |
-| `style`         | `ViewStyle`   | -       | Style object for the container         |
-| `initialPage`   | `number`      | `0`     | Initial page number                    |
-| `scrollEnabled` | `boolean`     | `true`  | Enable pager scrolling                 |
-| `pageMargin`    | `number`      | `0`     | Margin between pages                   |
-| `overdrag`      | `boolean`     | `true`  | Enable iOS-like bounce overdrag effect |
+| Property        | Type                         | Default        | Description                                  |
+| --------------- | ---------------------------- | -------------- | -------------------------------------------- |
+| `children`      | `ReactNode[]`                | -              | Array of pages to display                    |
+| `style`         | `ViewStyle`                  | -              | Style object for the container               |
+| `initialPage`   | `number`                     | `0`            | Initial page number                          |
+| `scrollEnabled` | `boolean`                    | `true`         | Enable pager scrolling                       |
+| `pageMargin`    | `number`                     | `0`            | Margin between pages                         |
+| `overdrag`      | `boolean`                    | `true`         | Enable iOS-like bounce overdrag effect       |
+| `orientation`   | `'horizontal' \| 'vertical'` | `'horizontal'` | Scrolling direction (horizontal or vertical) |
 
 ### Animation Customization
 
@@ -131,15 +133,15 @@ And should return a `ViewStyle` object with transform/animation properties.
 
 **Note:** Only `onPageScroll` should be a worklet for optimal performance. All other callbacks are called via runOnJS.
 
-| Property                   | Type                                                  | Description                                                         |
-| -------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------- |
-| `onPageSelected`           | `(page: number) => void`                              | Called when a new page is selected                                  |
-| `onPageScroll`             | `({ position, offset }) => void`                      | Called during scrolling and page offset changes (should be worklet) |
-| `onPageScrollStateChanged` | `(state) => void`                                     | State change during scrolling                                       |
-| `onDragStart`              | `() => void`                                          | Start of drag gesture                                               |
-| `onDragEnd`                | `() => void`                                          | End of drag gesture                                                 |
-| `onOverdrag`               | `(side: 'left'                   \| 'right') => void` | Called when overdrag threshold is reached                           |
-| `onInitialMeasure`         | `() => void`                                          | Called after initial measurement of container dimensions            |
+| Property                   | Type                                                     | Description                                                         |
+| -------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------- |
+| `onPageSelected`           | `(page: number) => void`                                 | Called when a new page is selected                                  |
+| `onPageScroll`             | `({ position, offset }) => void`                         | Called during scrolling and page offset changes (should be worklet) |
+| `onPageScrollStateChanged` | `(state) => void`                                        | State change during scrolling                                       |
+| `onDragStart`              | `() => void`                                             | Start of drag gesture                                               |
+| `onDragEnd`                | `() => void`                                             | End of drag gesture                                                 |
+| `onOverdrag`               | `(side: 'left' \| 'right' \| 'top' \| 'bottom') => void` | Called when overdrag threshold is reached                           |
+| `onInitialMeasure`         | `() => void`                                             | Called after initial measurement of container dimensions            |
 
 ### Gesture Customization
 
@@ -299,6 +301,62 @@ const VisibilityTrackingExample = () => {
     </PagerView>
   );
 };
+```
+
+## 📱 Vertical Mode
+
+The PagerView supports vertical scrolling, perfect for creating any vertical page-based navigation.
+
+### Basic Vertical Usage
+
+```tsx
+import React, { useMemo } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { PagerView } from 'react-native-reanimated-pager-view';
+
+const pages = [
+  { id: 'page1', color: '#ff6b6b', title: 'Swipe Up' },
+  { id: 'page2', color: '#4ecdc4', title: 'Keep Swiping' },
+  { id: 'page3', color: '#45b7d1', title: 'Almost There' },
+  { id: 'page4', color: '#96ceb4', title: 'Last Page!' },
+];
+
+const VerticalExample = () => {
+  const children = useMemo(
+    () =>
+      pages.map((page) => (
+        <View
+          key={page.id}
+          style={[styles.page, { backgroundColor: page.color }]}
+        >
+          <Text style={styles.title}>{page.title}</Text>
+        </View>
+      )),
+    [pages]
+  );
+
+  return (
+    <PagerView style={styles.container} orientation="vertical" overdrag={true}>
+      {children}
+    </PagerView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  page: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+});
 ```
 
 ## 🎯 Advanced Examples

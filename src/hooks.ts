@@ -11,6 +11,7 @@ import {
 } from 'react-native-reanimated';
 
 import { checkPageIndexInRange } from './utils';
+import type { Orientation } from './types';
 
 const IS_CUSTOM_CLIPPING_APPROACH_ENABLED = Platform.OS === 'android';
 const REMOVE_CLIPPED_PAGES_DELAY_MS = 5000;
@@ -64,13 +65,15 @@ export const useCustomClippingReceiver = ({
   pageIndex,
   canRemoveClippedPages,
   isRemovingClippedPagesEnabled,
-  width,
+  size,
+  orientation = 'horizontal',
 }: {
   currentPage: SharedValue<number>;
   pageIndex: number;
   canRemoveClippedPages: SharedValue<number>;
   isRemovingClippedPagesEnabled: boolean;
-  width: number;
+  size: number;
+  orientation?: Orientation;
 }) => {
   const isPageMountedInNativeTree = useSharedValue(1);
 
@@ -109,9 +112,15 @@ export const useCustomClippingReceiver = ({
       return {};
     }
 
-    return {
-      left: isPageMountedInNativeTree.value ? 0 : width * 1.5,
-    };
+    const offset = size * 1.5;
+
+    return orientation === 'vertical'
+      ? {
+          top: isPageMountedInNativeTree.value ? 0 : offset,
+        }
+      : {
+          left: isPageMountedInNativeTree.value ? 0 : offset,
+        };
   });
 
   return { clippedPageStyle };

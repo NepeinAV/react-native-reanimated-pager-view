@@ -29,6 +29,7 @@ import { NavigationIcon } from './components/NavigationIcon';
 import { FeedPage } from './components/FeedPage';
 import { MessagesPage } from './components/MessagesPage';
 import { ProfilePage } from './components/ProfilePage';
+import { Shorts } from './components/Shorts';
 import { NotificationsBottomSheet } from './components/NotificationsBottomSheet';
 import { styles as appStyles } from './styles';
 import { CONSTANTS } from './constants';
@@ -46,6 +47,8 @@ const pageInterpolator: PageInterpolator = ({ distance }) => {
   };
 };
 
+const AnimatedSafeArea = Animated.createAnimatedComponent(SafeAreaView);
+
 const App = () => {
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const animatedPage = useSharedValue(0);
@@ -57,6 +60,7 @@ const App = () => {
     () => [
       { id: 'feed', title: 'Home', icon: '🏠' },
       { id: 'messages', title: 'Messages', icon: '💬' },
+      { id: 'vertical', title: 'Shorts', icon: '📺' },
       { id: 'profile', title: 'Profile', icon: '👤' },
     ],
     []
@@ -70,7 +74,7 @@ const App = () => {
     [animatedPage]
   );
 
-  const backgroundAnimatedStyle = useAnimatedStyle(() => {
+  const navItemBackgroundAnimatedStyle = useAnimatedStyle(() => {
     const translateX = interpolate(
       animatedPage.value,
       [0, pages.length - 1],
@@ -80,6 +84,19 @@ const App = () => {
     return {
       width: screenWidth / pages.length - 12,
       transform: [{ translateX: translateX }],
+    };
+  });
+
+  const backgroundAnimatedStyle = useAnimatedStyle(() => {
+    const backgroundColor = interpolate(
+      animatedPage.value,
+      [1.25, 2, 2.75],
+      [0, 1, 0],
+      'clamp'
+    );
+
+    return {
+      backgroundColor: `rgba(0, 0, 0, ${backgroundColor})`,
     };
   });
 
@@ -117,6 +134,9 @@ const App = () => {
         case 'messages':
           return <MessagesPage />;
 
+        case 'vertical':
+          return <Shorts />;
+
         case 'profile':
           return <ProfilePage />;
 
@@ -128,7 +148,7 @@ const App = () => {
   );
 
   const memoizedPages = useMemo(() => {
-    return pages.map((page, _index) => (
+    return pages.map((page) => (
       <View key={page.id} style={appStyles.page}>
         {renderPage(page.id)}
       </View>
@@ -139,13 +159,14 @@ const App = () => {
     <GestureHandlerRootView style={styles.container}>
       <SafeAreaProvider>
         <BottomSheetModalProvider>
-          <StatusBar
-            backgroundColor={CONSTANTS.COLORS.BACKGROUND_PRIMARY}
-            translucent
-          />
-          <SafeAreaView style={appStyles.safeArea}>
+          <StatusBar translucent />
+          <AnimatedSafeArea
+            style={[appStyles.safeArea, backgroundAnimatedStyle]}
+          >
             <View style={appStyles.safeAreaContent}>
-              <View style={[appStyles.header]}>
+              <Animated.View
+                style={[appStyles.header, backgroundAnimatedStyle]}
+              >
                 <Text style={appStyles.headerTitle}>Connect</Text>
                 <TouchableOpacity
                   style={headerStyles.notificationButton}
@@ -153,7 +174,7 @@ const App = () => {
                 >
                   <Text style={headerStyles.notificationIcon}>🔔</Text>
                 </TouchableOpacity>
-              </View>
+              </Animated.View>
 
               <PagerView
                 ref={ref}
@@ -166,9 +187,14 @@ const App = () => {
                 {memoizedPages}
               </PagerView>
 
-              <View style={[appStyles.navigation]}>
+              <Animated.View
+                style={[appStyles.navigation, backgroundAnimatedStyle]}
+              >
                 <Animated.View
-                  style={[appStyles.navBackground, backgroundAnimatedStyle]}
+                  style={[
+                    appStyles.navBackground,
+                    navItemBackgroundAnimatedStyle,
+                  ]}
                 />
 
                 {pages.map((page, index) => {
@@ -187,7 +213,7 @@ const App = () => {
                     </TouchableOpacity>
                   );
                 })}
-              </View>
+              </Animated.View>
             </View>
 
             <BottomSheetModal
@@ -200,7 +226,7 @@ const App = () => {
                 <NotificationsBottomSheet />
               </BottomSheetView>
             </BottomSheetModal>
-          </SafeAreaView>
+          </AnimatedSafeArea>
         </BottomSheetModalProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

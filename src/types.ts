@@ -11,6 +11,13 @@ export type PagerViewProps = {
   style?: ViewStyle;
 
   /**
+   * The orientation of the pager
+   *
+   * @default 'horizontal'
+   */
+  orientation?: Orientation;
+
+  /**
    * @default true
    */
   overdrag?: boolean;
@@ -73,7 +80,7 @@ export type PagerViewProps = {
   /**
    * Callback triggered when overdrag threshold is reached
    */
-  onOverdrag?: (side: 'left' | 'right') => void;
+  onOverdrag?: (side: OverdragSide) => void;
 
   /**
    * Allows deferring page rendering until they enter the visible area.
@@ -129,6 +136,20 @@ export type PagerViewProps = {
   estimatedWidth?: number | null;
 
   /**
+   * Allows specifying the height of the parent container. If not set, the screen height is used by default.
+   * Only used when orientation is 'vertical'.
+   *
+   * ----
+   *
+   * If the container height is unknown in advance, set to `null`. On first render, the available parent height will be obtained, and only then will the pages be rendered.
+   *
+   * **This is not recommended, as it increases total render time and the interface may appear less smooth if pages are heavy.**
+   *
+   * @default Screen height
+   */
+  estimatedHeight?: number | null;
+
+  /**
    * Reduces device load by removing inactive pages on the native platform, while preserving all input, scroll, etc. states.
    *
    * Trade-offs:
@@ -173,3 +194,7 @@ export type ScrollPosition = {
   position: number;
   offset: number;
 };
+
+export type OverdragSide = 'left' | 'right' | 'top' | 'bottom';
+
+export type Orientation = 'horizontal' | 'vertical';
