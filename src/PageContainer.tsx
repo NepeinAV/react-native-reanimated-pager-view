@@ -12,7 +12,7 @@ import { PageOnscreenContext } from './context';
 import { useCustomClippingReceiver } from './hooks';
 import {
   type PagerViewProps,
-  type PageInterpolator,
+  type PageStyleInterpolator,
   type ScrollPosition,
   type Orientation,
 } from './types';
@@ -35,7 +35,7 @@ type Props = PropsWithChildren<{
   currentPage: SharedValue<number>;
   canRemoveClippedPages: SharedValue<number>;
   isRemovingClippedPagesEnabled: boolean;
-  pageInterpolator?: PageInterpolator;
+  pageStyleInterpolator?: PageStyleInterpolator;
   scrollPosition: SharedValue<ScrollPosition>;
   orientation: Orientation;
 }> &
@@ -56,7 +56,7 @@ const PageContainer = ({
   trackOnscreenPageLimit,
   canRemoveClippedPages,
   isRemovingClippedPagesEnabled,
-  pageInterpolator,
+  pageStyleInterpolator,
   scrollPosition,
   orientation,
 }: Props) => {
@@ -150,10 +150,10 @@ const PageContainer = ({
     );
   };
 
-  if (pageInterpolator) {
+  if (pageStyleInterpolator) {
     return (
       <PageWithInterpolation
-        pageInterpolator={pageInterpolator}
+        pageStyleInterpolator={pageStyleInterpolator}
         scrollPosition={scrollPosition}
         pageIndex={pageIndex}
       >

@@ -2,27 +2,27 @@ import type { ReactNode } from 'react';
 import { type ViewStyle } from 'react-native';
 import { type SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
-import { type PageInterpolator, type ScrollPosition } from './types';
+import { type PageStyleInterpolator, type ScrollPosition } from './types';
 
 type Props = {
   children: (style?: ViewStyle) => ReactNode;
-  pageInterpolator: PageInterpolator;
+  pageStyleInterpolator: PageStyleInterpolator;
   scrollPosition: SharedValue<ScrollPosition>;
   pageIndex: number;
 };
 
 export const PageWithInterpolation = ({
   children,
-  pageInterpolator,
+  pageStyleInterpolator,
   scrollPosition,
   pageIndex,
 }: Props) => {
   const pageInterpolatorStyle = useAnimatedStyle(() => {
     const { position, offset } = scrollPosition.value;
 
-    const distance = position + offset - pageIndex;
+    const pageOffset = position + offset - pageIndex;
 
-    return pageInterpolator({ distance, pageIndex: pageIndex });
+    return pageStyleInterpolator({ pageOffset, pageIndex: pageIndex });
   });
 
   return children(pageInterpolatorStyle);
