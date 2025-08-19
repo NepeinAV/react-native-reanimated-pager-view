@@ -25,6 +25,8 @@ https://github.com/user-attachments/assets/340566eb-deca-47a9-b67c-7b7f6ec691d3
   - [Basic Properties](#basic-properties)
   - [Animation Customization](#animation-customization)
   - [Page Animations](#page-animations)
+  - [Scroll Offset Interpolation](#scroll-offset-interpolation)
+  - [Dynamic Styling](#dynamic-styling)
   - [Callbacks](#callbacks)
   - [Gesture Customization](#gesture-customization)
   - [Performance](#performance)
