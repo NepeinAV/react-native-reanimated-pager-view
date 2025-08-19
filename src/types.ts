@@ -2,13 +2,19 @@ import { type ReactNode } from 'react';
 import { type ViewStyle } from 'react-native';
 import type { PanGesture } from 'react-native-gesture-handler';
 
+export type PagerStyleFn = (params: {
+  pageSize: number;
+  scrollOffset: number;
+  interpolatedScrollOffset: number;
+}) => ViewStyle;
+
 export type PagerViewProps = {
   children: ReactNode[];
 
   /**
    * Style object for the container
    */
-  style?: ViewStyle;
+  style?: ViewStyle | PagerStyleFn;
 
   /**
    * The orientation of the pager
@@ -16,11 +22,6 @@ export type PagerViewProps = {
    * @default 'horizontal'
    */
   orientation?: Orientation;
-
-  /**
-   * @default true
-   */
-  overdrag?: boolean;
 
   /**
    * @default 0
@@ -47,18 +48,6 @@ export type PagerViewProps = {
   pageActivationThreshold?: number;
 
   /**
-   * Resistance coefficient during overdrag
-   * @default 0.7
-   */
-  overdragResistanceFactor?: number;
-
-  /**
-   * Threshold for triggering overdrag callback
-   * @default 100
-   */
-  overdragThreshold?: number;
-
-  /**
    * Minimum velocity for automatic page switching
    * @default 500
    */
@@ -70,17 +59,19 @@ export type PagerViewProps = {
   gestureConfiguration?: (gesture: PanGesture) => PanGesture;
 
   /**
-   * Function to customize page animations based on scroll position
-   * @param distance - The distance between current scroll position and page index (offsetX.value / pageWidth - index)
-   * @param index - The page index
+   * Function to customize page style based on scroll position
+   *
    * @returns ViewStyle object with animation styles
    */
-  pageInterpolator?: PageInterpolator;
+  pageStyleInterpolator?: PageStyleInterpolator;
 
   /**
-   * Callback triggered when overdrag threshold is reached
+   * Function to customize behaviour of Pager scroll offset.
+   *
+   * @default bounceScrollOffsetInterpolator
+   * @returns Modified offset value
    */
-  onOverdrag?: (side: OverdragSide) => void;
+  scrollOffsetInterpolator?: ScrollOffsetInterpolator | null;
 
   /**
    * Allows deferring page rendering until they enter the visible area.
@@ -178,10 +169,25 @@ export type PagerViewProps = {
   onInitialMeasure?: () => void;
 };
 
-export type PageInterpolator = (params: {
-  distance: number;
+export type PageStyleInterpolatorParams = {
+  pageOffset: number;
   pageIndex: number;
-}) => ViewStyle;
+};
+
+export type ScrollOffsetInterpolatorParams = {
+  scrollOffset: number;
+  orientation: Orientation;
+  pageCount: number;
+};
+
+export type PageStyleInterpolator = (
+  params: PageStyleInterpolatorParams
+) => ViewStyle;
+
+export type ScrollOffsetInterpolator = {
+  interpolator: (params: ScrollOffsetInterpolatorParams) => number;
+  onPanStart?: () => void;
+};
 
 export type PagerViewRef = {
   setPage: (page: number) => void;
@@ -195,6 +201,6 @@ export type ScrollPosition = {
   offset: number;
 };
 
-export type OverdragSide = 'left' | 'right' | 'top' | 'bottom';
+export type OverscrollSide = 'left' | 'right' | 'top' | 'bottom';
 
 export type Orientation = 'horizontal' | 'vertical';

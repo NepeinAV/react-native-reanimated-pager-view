@@ -1,14 +1,17 @@
-import type { OverdragSide } from './types';
+import type { OverscrollSide } from './types';
 
-export const getOverdragOffset = (offset: number, contentSize: number) => {
+export const getOverscrollOffset = (
+  scrollOffset: number,
+  contentSize: number
+) => {
   'worklet';
 
-  if (offset > 0) {
-    return offset;
+  if (scrollOffset < 0) {
+    return scrollOffset;
   }
 
-  if (offset < -contentSize) {
-    return offset + contentSize;
+  if (scrollOffset > contentSize) {
+    return scrollOffset - contentSize;
   }
 
   return 0;
@@ -40,17 +43,17 @@ export const isArrayEqual = <T>(a: T[], b: T[]): boolean => {
   return true;
 };
 
-export const getOverdragSide = (
-  overdragOffset: number,
+export const getOverscrollSide = (
+  overscrollOffset: number,
   isVertical: boolean
-): OverdragSide => {
+): OverscrollSide => {
   'worklet';
 
-  const isPositive = overdragOffset > 0;
+  const isStart = overscrollOffset < 0;
 
   if (isVertical) {
-    return isPositive ? 'top' : 'bottom';
+    return isStart ? 'top' : 'bottom';
   }
 
-  return isPositive ? 'left' : 'right';
+  return isStart ? 'left' : 'right';
 };
