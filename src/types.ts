@@ -68,10 +68,9 @@ export type PagerViewProps = {
   /**
    * Function to customize behaviour of Pager scroll offset.
    *
-   * @default bounceScrollOffsetInterpolator
    * @returns Modified offset value
    */
-  scrollOffsetInterpolator?: ScrollOffsetInterpolator | null;
+  scrollOffsetInterpolator?: ScrollOffsetInterpolator;
 
   /**
    * Allows deferring page rendering until they enter the visible area.

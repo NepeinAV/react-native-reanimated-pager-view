@@ -131,7 +131,6 @@ const Shorts: React.FC = () => {
         ref={ref}
         orientation="vertical"
         pageMargin={0}
-        scrollOffsetInterpolator={null}
         style={rubberBandStyle}
       >
         {videos.map((video, index) => (

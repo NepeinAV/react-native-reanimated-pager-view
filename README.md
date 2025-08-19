@@ -8,11 +8,11 @@ High-performance PagerView component for React Native, built on `react-native-re
 
 - 🚀 **High Performance** - uses `react-native-reanimated v3` for smooth animations on the native thread
 - 🎨 **Full Customization** - configure gestures, animations and behavior through callbacks
-- ✨ **Custom Page Animations** - create stunning page transitions with `pageInterpolator`
+- ✨ **Custom Page Animations** - create stunning page transitions with `pageStyleInterpolator`
+- ↔️ **Overscroll effects** - add an overscroll effect when reaching the edges (see `createBounceScrollOffsetInterpolator` for iOS-like bounce effect)
 - 📱 **Platform Support** - iOS and Android
 - 🔧 **TypeScript** - complete type safety out of the box
 - 🎯 **Lazy loading** - deferred page loading for performance optimization
-- 🖐️ **Overdrag effect** - iOS-like bounce effect when exceeding boundaries
 - 👀 **Visibility tracking** - track visible pages on screen
 - 🔄 **Dynamic management** - add/remove pages with automatic positioning
 - 📱 **Vertical Mode** - support for vertical scrolling
@@ -65,13 +65,19 @@ Follow the [installation instructions](https://docs.swmansion.com/react-native-r
 ```tsx
 import React, { useCallback, useMemo } from 'react';
 import { View, Text } from 'react-native';
-import { PagerView } from 'react-native-reanimated-pager-view';
+import {
+  PagerView,
+  createBounceScrollOffsetInterpolator,
+} from 'react-native-reanimated-pager-view';
 
 const pages = [
   { id: 'page1', color: '#ff6b6b', title: 'Page 1' },
   { id: 'page2', color: '#4ecdc4', title: 'Page 2' },
   { id: 'page3', color: '#45b7d1', title: 'Page 3' },
 ];
+
+// Optional: Add bounce effect with threshold callback
+const bounceInterpolator = createBounceScrollOffsetInterpolator();
 
 export default function App() {
   const children = useMemo(
@@ -84,7 +90,11 @@ export default function App() {
     []
   );
 
-  return <PagerView>{children}</PagerView>;
+  return (
+    <PagerView scrollOffsetInterpolator={bounceInterpolator}>
+      {children}
+    </PagerView>
+  );
 }
 ```
 
@@ -118,50 +128,90 @@ This prevents gesture conflicts between the PagerView's horizontal pan gesture a
 | Property        | Type                         | Default        | Description                                  |
 | --------------- | ---------------------------- | -------------- | -------------------------------------------- |
 | `children`      | `ReactNode[]`                | -              | Array of pages to display                    |
-| `style`         | `ViewStyle`                  | -              | Style object for the container               |
+| `style`         | `ViewStyle \| PagerStyleFn`  | -              | Style object or function for the container   |
 | `initialPage`   | `number`                     | `0`            | Initial page number                          |
 | `scrollEnabled` | `boolean`                    | `true`         | Enable pager scrolling                       |
 | `pageMargin`    | `number`                     | `0`            | Margin between pages                         |
-| `overdrag`      | `boolean`                    | `true`         | Enable iOS-like bounce overdrag effect       |
 | `orientation`   | `'horizontal' \| 'vertical'` | `'horizontal'` | Scrolling direction (horizontal or vertical) |
 
 ### Animation Customization
 
-| Property                   | Type     | Default | Description                                                                                             |
-| -------------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------- |
-| `overdragResistanceFactor` | `number` | `0.7`   | Resistance coefficient during overdrag                                                                  |
-| `overdragThreshold`        | `number` | `100`   | Threshold for triggering overdrag callback                                                              |
-| `panVelocityThreshold`     | `number` | `500`   | Minimum velocity for page switching. Note: page will switch if scrolled past 50% regardless of velocity |
-| `pageActivationThreshold`  | `number` | `0.8`   | Visibility percentage for page activation                                                               |
+| Property                   | Type                       | Default | Description                                                                                             |
+| -------------------------- | -------------------------- | ------- | ------------------------------------------------------------------------------------------------------- |
+| `pageStyleInterpolator`    | `PageStyleInterpolator`    | -       | Custom function for animating pages based on scroll position (must be a worklet)                        |
+| `scrollOffsetInterpolator` | `ScrollOffsetInterpolator` | -       | Custom scroll behavior interpolator                                                                     |
+| `panVelocityThreshold`     | `number`                   | `500`   | Minimum velocity for page switching. Note: page will switch if scrolled past 50% regardless of velocity |
+| `pageActivationThreshold`  | `number`                   | `0.8`   | Visibility percentage for page activation                                                               |
 
 ### Page Animations
 
-| Property           | Type               | Description                                                                      |
-| ------------------ | ------------------ | -------------------------------------------------------------------------------- |
-| `pageInterpolator` | `PageInterpolator` | Custom function for animating pages based on scroll position (must be a worklet) |
+| Property                | Type                    | Description                                                                      |
+| ----------------------- | ----------------------- | -------------------------------------------------------------------------------- |
+| `pageStyleInterpolator` | `PageStyleInterpolator` | Custom function for animating pages based on scroll position (must be a worklet) |
 
-The `pageInterpolator` function receives:
+The `pageStyleInterpolator` function receives:
 
-- `distance`: number - The distance between current scroll position and page index (can be negative)
+- `pageOffset`: number - The offset between current scroll position and page index (can be negative)
 - `pageIndex`: number - The page index that is being interpolated
 
 And should return a `ViewStyle` object with transform/animation properties.
 
-⚠️ **Important**: The `pageInterpolator` function must be a worklet (use `'worklet';` directive).
+⚠️ **Important**: The `pageStyleInterpolator` function must be a worklet (use `'worklet';` directive).
+
+### Scroll Offset Interpolation
+
+| Property                   | Type                       | Description                                                          |
+| -------------------------- | -------------------------- | -------------------------------------------------------------------- |
+| `scrollOffsetInterpolator` | `ScrollOffsetInterpolator` | Custom function for modifying scroll behavior and overscroll effects |
+
+The library provides a built-in `createBounceScrollOffsetInterpolator` utility for creating iOS-like bounce effects:
+
+```tsx
+import { createBounceScrollOffsetInterpolator } from 'react-native-reanimated-pager-view';
+
+const bounceInterpolator = createBounceScrollOffsetInterpolator({
+  resistanceFactor: 0.7, // Overscroll resistance (0-1)
+  threshold: 0.3, // Threshold for callback trigger
+  onThresholdReached: ({ side }) => {
+    console.log(`Reached ${side} boundary`);
+  },
+  triggerThresholdCallbackOnlyOnce: false, // Trigger callback multiple times or once per gesture
+});
+
+<PagerView scrollOffsetInterpolator={bounceInterpolator} />;
+```
+
+> You can write your own scroll offset interpolator by following the same pattern as `createBounceScrollOffsetInterpolator` 🔥.
+
+### Dynamic Styling
+
+The `style` prop can accept a function for dynamic styling based on scroll position:
+
+```tsx
+const dynamicStyle = ({
+  scrollOffset,
+  interpolatedScrollOffset,
+  pageSize,
+}) => ({
+  backgroundColor: `rgba(0,0,0,${Math.abs(scrollOffset) * 0.1})`,
+  transform: [{ scale: 1 + Math.abs(interpolatedScrollOffset) * 0.05 }],
+});
+
+<PagerView style={dynamicStyle} />;
+```
 
 ### Callbacks
 
 **Note:** Only `onPageScroll` should be a worklet for optimal performance. All other callbacks are called via runOnJS.
 
-| Property                   | Type                                                     | Description                                                         |
-| -------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------- |
-| `onPageSelected`           | `(page: number) => void`                                 | Called when a new page is selected                                  |
-| `onPageScroll`             | `({ position, offset }) => void`                         | Called during scrolling and page offset changes (should be worklet) |
-| `onPageScrollStateChanged` | `(state) => void`                                        | State change during scrolling                                       |
-| `onDragStart`              | `() => void`                                             | Start of drag gesture                                               |
-| `onDragEnd`                | `() => void`                                             | End of drag gesture                                                 |
-| `onOverdrag`               | `(side: 'left' \| 'right' \| 'top' \| 'bottom') => void` | Called when overdrag threshold is reached                           |
-| `onInitialMeasure`         | `() => void`                                             | Called after initial measurement of container dimensions            |
+| Property                   | Type                             | Description                                                         |
+| -------------------------- | -------------------------------- | ------------------------------------------------------------------- |
+| `onPageSelected`           | `(page: number) => void`         | Called when a new page is selected                                  |
+| `onPageScroll`             | `({ position, offset }) => void` | Called during scrolling and page offset changes (should be worklet) |
+| `onPageScrollStateChanged` | `(state) => void`                | State change during scrolling                                       |
+| `onDragStart`              | `() => void`                     | Start of drag gesture                                               |
+| `onDragEnd`                | `() => void`                     | End of drag gesture                                                 |
+| `onInitialMeasure`         | `() => void`                     | Called after initial measurement of container dimensions            |
 
 ### Gesture Customization
 
@@ -355,8 +405,15 @@ const VerticalExample = () => {
     [pages]
   );
 
+  // Create bounce interpolator for vertical mode
+  const bounceInterpolator = createBounceScrollOffsetInterpolator();
+
   return (
-    <PagerView style={styles.container} orientation="vertical" overdrag={true}>
+    <PagerView
+      style={styles.container}
+      orientation="vertical"
+      scrollOffsetInterpolator={bounceInterpolator}
+    >
       {children}
     </PagerView>
   );
@@ -388,7 +445,7 @@ import React, { useMemo } from 'react';
 import { interpolate } from 'react-native-reanimated';
 import {
   PagerView,
-  type PageInterpolator,
+  type PageStyleInterpolator,
 } from 'react-native-reanimated-pager-view';
 
 const ANIMATION_PAGES = [
@@ -397,11 +454,11 @@ const ANIMATION_PAGES = [
   { id: 'page3', title: 'Page 3', color: '#45b7d1' },
 ];
 
-const pageInterpolator: PageInterpolator = ({ distance }) => {
+const pageStyleInterpolator: PageStyleInterpolator = ({ pageOffset }) => {
   'worklet';
 
-  const rotateY = interpolate(distance, [-1, 0, 1], [60, 0, -60], 'clamp');
-  const scale = interpolate(distance, [-1, 0, 1], [0.8, 1, 0.8], 'clamp');
+  const rotateY = interpolate(pageOffset, [-1, 0, 1], [60, 0, -60], 'clamp');
+  const scale = interpolate(pageOffset, [-1, 0, 1], [0.8, 1, 0.8], 'clamp');
 
   return {
     transform: [{ perspective: 1000 }, { rotateY: `${rotateY}deg` }, { scale }],
@@ -429,7 +486,11 @@ const CustomAnimationPager = () => {
     []
   );
 
-  return <PagerView pageInterpolator={pageInterpolator}>{children}</PagerView>;
+  return (
+    <PagerView pageStyleInterpolator={pageStyleInterpolator}>
+      {children}
+    </PagerView>
+  );
 };
 ```
 
