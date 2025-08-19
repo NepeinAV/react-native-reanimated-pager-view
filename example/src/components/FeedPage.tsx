@@ -13,11 +13,6 @@ import {
   keyExtractorById,
 } from '../hooks/useFlatListOptimization';
 
-interface FeedPageProps {
-  likedPosts: Set<string>;
-  onLike: (postId: string) => void;
-}
-
 const BannersHeader: React.FC<{ banners: Banner[] }> = ({ banners }) => {
   const renderBanner = ({ item }: { item: Banner }) => (
     <BannerItem banner={item} onPress={() => {}} />
@@ -38,14 +33,12 @@ const BannersHeader: React.FC<{ banners: Banner[] }> = ({ banners }) => {
   );
 };
 
-export const FeedPage: React.FC<FeedPageProps> = ({ likedPosts, onLike }) => {
+export const FeedPage: React.FC = () => {
   const posts = useMemo(() => postsData, []);
   const banners = useMemo(() => bannersData, []);
   const flatListConfig = useOptimizedFlatListConfig();
 
-  const renderPost = ({ item }: { item: Post }) => (
-    <PostItem post={item} isLiked={likedPosts.has(item.id)} onLike={onLike} />
-  );
+  const renderPost = ({ item }: { item: Post }) => <PostItem post={item} />;
 
   return (
     <FlatList

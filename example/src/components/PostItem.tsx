@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import type { Post } from '../types';
 import { postStyles } from '../styles/postStyles';
@@ -6,19 +6,9 @@ import { Avatar } from './Avatar';
 
 interface PostItemProps {
   post: Post;
-  isLiked: boolean;
-  onLike: (postId: string) => void;
 }
 
-export const PostItem: React.FC<PostItemProps> = ({
-  post,
-  isLiked,
-  onLike,
-}) => {
-  const handlePostLike = useCallback(() => {
-    onLike(post.id);
-  }, [onLike, post.id]);
-
+export const PostItem: React.FC<PostItemProps> = ({ post }) => {
   return (
     <View style={postStyles.postContainer}>
       <View style={postStyles.postHeader}>
@@ -30,21 +20,9 @@ export const PostItem: React.FC<PostItemProps> = ({
       </View>
       <Text style={postStyles.postContent}>{post.content}</Text>
       <View style={postStyles.postActions}>
-        <TouchableOpacity
-          style={postStyles.actionButton}
-          onPress={handlePostLike}
-        >
-          <Text
-            style={[
-              postStyles.actionIcon,
-              isLiked ? postStyles.likedIcon : postStyles.unlikedIcon,
-            ]}
-          >
-            ❤️
-          </Text>
-          <Text style={postStyles.actionText}>
-            {post.likes + (isLiked ? 1 : 0)}
-          </Text>
+        <TouchableOpacity style={postStyles.actionButton}>
+          <Text style={[postStyles.actionIcon, postStyles.likedIcon]}>❤️</Text>
+          <Text style={postStyles.actionText}>{post.likes}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={postStyles.actionButton} onPress={() => {}}>
           <Text style={postStyles.actionIcon}>💬</Text>

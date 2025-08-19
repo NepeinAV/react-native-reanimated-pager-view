@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef } from 'react';
+import { useMemo, useCallback, useRef } from 'react';
 import {
   StatusBar,
   StyleSheet,
@@ -6,18 +6,21 @@ import {
   View,
   TouchableOpacity,
   Dimensions,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import {
+  createBounceScrollOffsetInterpolator,
   PagerView,
   type PagerViewRef,
-  type PageInterpolator,
+  type PageStyleInterpolator,
 } from 'react-native-reanimated-pager-view';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   interpolate,
+  Extrapolation,
 } from 'react-native-reanimated';
 import {
   BottomSheetModalProvider,
@@ -34,24 +37,25 @@ import { NotificationsBottomSheet } from './components/NotificationsBottomSheet'
 import { styles as appStyles } from './styles';
 import { CONSTANTS } from './constants';
 
-const { width: screenWidth } = Dimensions.get('window');
+const AnimatedSafeArea = Animated.createAnimatedComponent(SafeAreaView);
 
-const pageInterpolator: PageInterpolator = ({ distance }) => {
+const pageStyleInterpolator: PageStyleInterpolator = ({ pageOffset }) => {
   'worklet';
 
-  const rotateY = interpolate(distance, [-1, 0, 1], [60, 0, -60], 'clamp');
-  const scale = interpolate(distance, [-1, 0, 1], [0.8, 1, 0.8], 'clamp');
+  const rotateY = interpolate(pageOffset, [-1, 0, 1], [60, 0, -60], 'clamp');
+  const scale = interpolate(pageOffset, [-1, 0, 1], [0.8, 1, 0.8], 'clamp');
 
   return {
     transform: [{ perspective: 1000 }, { rotateY: `${rotateY}deg` }, { scale }],
   };
 };
 
-const AnimatedSafeArea = Animated.createAnimatedComponent(SafeAreaView);
+const scrollOffsetInterpolator = createBounceScrollOffsetInterpolator();
 
 const App = () => {
-  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
-  const animatedPage = useSharedValue(0);
+  const { width: screenWidth } = useWindowDimensions();
+
+  const pagerScrollPosition = useSharedValue(0);
   const notificationsBottomSheetRef = useRef<BottomSheetModal>(null);
 
   const ref = useRef<PagerViewRef>(null);
@@ -69,16 +73,18 @@ const App = () => {
   const onPageScroll = useCallback(
     (e: { position: number; offset: number }) => {
       'worklet';
-      animatedPage.value = e.position + e.offset;
+
+      pagerScrollPosition.value = e.position + e.offset;
     },
-    [animatedPage]
+    [pagerScrollPosition]
   );
 
   const navItemBackgroundAnimatedStyle = useAnimatedStyle(() => {
     const translateX = interpolate(
-      animatedPage.value,
+      pagerScrollPosition.value,
       [0, pages.length - 1],
-      [0, (screenWidth / pages.length) * (pages.length - 1)]
+      [0, (screenWidth / pages.length) * (pages.length - 1)],
+      Extrapolation.CLAMP
     );
 
     return {
@@ -89,7 +95,7 @@ const App = () => {
 
   const backgroundAnimatedStyle = useAnimatedStyle(() => {
     const backgroundColor = interpolate(
-      animatedPage.value,
+      pagerScrollPosition.value,
       [1.25, 2, 2.75],
       [0, 1, 0],
       'clamp'
@@ -99,18 +105,6 @@ const App = () => {
       backgroundColor: `rgba(0, 0, 0, ${backgroundColor})`,
     };
   });
-
-  const handleLike = useCallback((postId: string) => {
-    setLikedPosts((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(postId)) {
-        newSet.delete(postId);
-      } else {
-        newSet.add(postId);
-      }
-      return newSet;
-    });
-  }, []);
 
   const openNotifications = useCallback(() => {
     notificationsBottomSheetRef.current?.present();
@@ -125,27 +119,24 @@ const App = () => {
     [pages.length]
   );
 
-  const renderPage = useCallback(
-    (pageId: string) => {
-      switch (pageId) {
-        case 'feed':
-          return <FeedPage likedPosts={likedPosts} onLike={handleLike} />;
+  const renderPage = useCallback((pageId: string) => {
+    switch (pageId) {
+      case 'feed':
+        return <FeedPage />;
 
-        case 'messages':
-          return <MessagesPage />;
+      case 'messages':
+        return <MessagesPage />;
 
-        case 'vertical':
-          return <Shorts />;
+      case 'vertical':
+        return <Shorts />;
 
-        case 'profile':
-          return <ProfilePage />;
+      case 'profile':
+        return <ProfilePage />;
 
-        default:
-          return <View style={appStyles.pageContainer} />;
-      }
-    },
-    [likedPosts, handleLike]
-  );
+      default:
+        return <View style={appStyles.pageContainer} />;
+    }
+  }, []);
 
   const memoizedPages = useMemo(() => {
     return pages.map((page) => (
@@ -179,10 +170,10 @@ const App = () => {
               <PagerView
                 ref={ref}
                 onPageScroll={onPageScroll}
-                overdrag={true}
                 scrollEnabled={true}
                 removeClippedPages={false}
-                pageInterpolator={pageInterpolator}
+                pageStyleInterpolator={pageStyleInterpolator}
+                scrollOffsetInterpolator={scrollOffsetInterpolator}
               >
                 {memoizedPages}
               </PagerView>
@@ -206,7 +197,7 @@ const App = () => {
                     >
                       <NavigationIcon
                         icon={page.icon}
-                        animatedPage={animatedPage}
+                        animatedPage={pagerScrollPosition}
                         index={index}
                       />
                       <Text style={appStyles.navLabel}>{page.title}</Text>

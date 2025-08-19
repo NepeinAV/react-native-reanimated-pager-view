@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import {
   Text,
   View,
@@ -9,7 +9,7 @@ import {
 import { interpolate } from 'react-native-reanimated';
 import {
   PagerView,
-  type PageInterpolator,
+  type PagerStyleFn,
   type PagerViewRef,
 } from 'react-native-reanimated-pager-view';
 
@@ -99,26 +99,25 @@ const videos = [
   },
 ];
 
-const pageInterpolator: PageInterpolator = ({ distance }) => {
+const rubberBandStyle: PagerStyleFn = ({ scrollOffset }) => {
   'worklet';
 
-  const scale = interpolate(distance, [-1, 0, 1], [0.9, 1, 0.9], 'clamp');
-  const opacity = interpolate(distance, [-1, 0, 1], [0.3, 1, 0.3], 'clamp');
-  const rotateX = interpolate(distance, [-1, 0, 1], [15, 0, -15], 'clamp');
-
   return {
-    transform: [{ scale }, { rotateX: `${rotateX}deg` }],
-    opacity,
+    transformOrigin: scrollOffset < 0 ? 'top' : 'bottom',
+    transform: [
+      {
+        scaleY: interpolate(
+          scrollOffset,
+          [-1, 0, videos.length - 1, videos.length],
+          [1.25, 1, 1, 1.25]
+        ),
+      },
+    ],
   };
 };
 
 const Shorts: React.FC = () => {
   const ref = useRef<PagerViewRef>(null);
-  const [currentVideo, setCurrentVideo] = useState(0);
-
-  const handleVideoChange = (page: number) => {
-    setCurrentVideo(page);
-  };
 
   return (
     <View style={styles.container}>
@@ -130,14 +129,12 @@ const Shorts: React.FC = () => {
 
       <PagerView
         ref={ref}
-        style={styles.pagerView}
         orientation="vertical"
-        onPageSelected={handleVideoChange}
         pageMargin={0}
-        overdrag={true}
-        pageInterpolator={pageInterpolator}
+        scrollOffsetInterpolator={null}
+        style={rubberBandStyle}
       >
-        {videos.map((video) => (
+        {videos.map((video, index) => (
           <View key={video.id} style={styles.videoContainer}>
             <View
               style={[
@@ -194,7 +191,7 @@ const Shorts: React.FC = () => {
 
               <View style={styles.videoIndicator}>
                 <Text style={styles.indicatorText}>
-                  {currentVideo + 1} / {videos.length}
+                  {index + 1} / {videos.length}
                 </Text>
               </View>
             </View>
@@ -209,9 +206,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000000',
-  },
-  pagerView: {
-    flex: 1,
   },
   videoContainer: {
     flex: 1,
