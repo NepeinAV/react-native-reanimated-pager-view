@@ -35,18 +35,13 @@ import {
   type PagerViewRef,
   type ScrollState,
 } from './types';
-import {
-  getOverdragOffset,
-  getOverdragSide,
-  getPageOffset,
-  isArrayEqual,
-} from './utils';
+import { getPageOffset, isArrayEqual } from './utils';
 
 type OffsetTuple = [number, number];
 
 const ANDROID_ACTIVE_OFFSET: OffsetTuple = [-10, 10];
 const ANDROID_FAIL_OFFSET: OffsetTuple = [-30, 30];
-const IOS_ACTIVE_OFFSET: OffsetTuple = [-5, 5];
+const IOS_ACTIVE_OFFSET: OffsetTuple = [-10, 10];
 
 const NEXT_PAGE_VISIBLE_PART_THRESHOLD = 0.5;
 
@@ -59,7 +54,6 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       onPageSelected,
       onPageScrollStateChanged,
       onPageScroll,
-      overdrag = true,
       pageActivationThreshold = 0.8,
       scrollEnabled = true,
       onDragStart,
@@ -74,12 +68,10 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       removeClippedPages: _removeClippedPages = true,
       holdCurrentPageOnChildrenUpdate = false,
       gestureConfiguration,
-      onOverdrag,
       style,
-      overdragThreshold = 100,
-      overdragResistanceFactor = 0.7,
       panVelocityThreshold = 500,
-      pageInterpolator,
+      pageStyleInterpolator,
+      scrollOffsetInterpolator,
       orientation = 'horizontal',
     },
     ref
@@ -123,9 +115,9 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       ? layout.height !== null
       : layout.width !== null;
 
-    const initialPanTotalOffset = getPageOffset(initialPage, pageSize);
-    const panTotalOffset = useSharedValue(initialPanTotalOffset);
-    const panGestureStartOffset = useSharedValue(initialPanTotalOffset);
+    const initialPanOffset = getPageOffset(initialPage, pageSize);
+    const panOffset = useSharedValue(initialPanOffset);
+    const panGestureStartOffset = useSharedValue(initialPanOffset);
 
     const scrollState = useSharedValue<ScrollState>('idle');
 
@@ -134,7 +126,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
 
     useExecuteEffectOnce(() => {
       if (isLayoutMeasured) {
-        panTotalOffset.value = getPageOffset(initialPage, pageSize);
+        panOffset.value = getPageOffset(initialPage, pageSize);
 
         onInitialMeasure?.();
       }
@@ -181,7 +173,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       const nextOffset = getPageOffset(nextPage, pageSize);
 
       const isPageChanged = nextPage !== currentPageValue;
-      const isOffsetChanged = nextOffset !== panTotalOffset.value;
+      const isOffsetChanged = nextOffset !== panOffset.value;
 
       if (isPageChanged && onPageSelected) {
         runOnJS(onPageSelected)(nextPage);
@@ -192,14 +184,14 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       }
 
       if (isOffsetChanged) {
-        panTotalOffset.value = nextOffset;
+        panOffset.value = nextOffset;
       }
     }, [
       currentPage,
       pageCount,
       holdCurrentPageOnChildrenUpdate,
       pageSize,
-      panTotalOffset,
+      panOffset,
       onPageSelected,
       childrenKeys,
       previousChildrenKeys,
@@ -243,7 +235,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
         );
 
         if (animated) {
-          panTotalOffset.value = withSpring(
+          panOffset.value = withSpring(
             pageOffset,
             {
               damping: 100,
@@ -254,18 +246,12 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
             }
           );
         } else {
-          panTotalOffset.value = pageOffset;
+          panOffset.value = pageOffset;
 
           setRemoveClippedPages(true);
         }
       },
-      [
-        isLayoutMeasured,
-        pageCount,
-        pageSize,
-        panTotalOffset,
-        setRemoveClippedPages,
-      ]
+      [isLayoutMeasured, pageCount, pageSize, panOffset, setRemoveClippedPages]
     );
 
     const imperativeScrollToPage = useCallback(
@@ -298,8 +284,22 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       [imperativeScrollToPage]
     );
 
-    const scrollPosition = useDerivedValue(() => {
-      const value = panTotalOffset.value;
+    const interpolatedPanOffset = useDerivedValue(() => {
+      if (!scrollOffsetInterpolator) {
+        return clamp(panOffset.value, -contentSize + pageSize, 0);
+      }
+
+      const interpolatedRelativeOffset = scrollOffsetInterpolator.interpolator({
+        scrollOffset: -panOffset.value / pageSize,
+        pageCount,
+        orientation,
+      });
+
+      return -interpolatedRelativeOffset * pageSize;
+    });
+
+    const relativePanOffset = useDerivedValue(() => {
+      const value = interpolatedPanOffset.value;
 
       const position = Math.floor(-value / pageSize);
       const offset = -value / pageSize - position;
@@ -308,7 +308,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
     });
 
     useAnimatedReaction(
-      () => scrollPosition.value,
+      () => relativePanOffset.value,
       (value) => {
         const { position, offset } = value;
 
@@ -361,41 +361,23 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       }
     );
 
-    const overdragResistanceThreshold =
-      overdragThreshold / overdragResistanceFactor;
-
     let panGesture = Gesture.Pan()
       .enabled(scrollEnabled)
       .onStart(() => {
-        cancelAnimation(panTotalOffset);
+        scrollOffsetInterpolator?.onPanStart?.();
+
+        cancelAnimation(panOffset);
         setRemoveClippedPages(false);
 
-        panGestureStartOffset.value = panTotalOffset.value;
+        panGestureStartOffset.value = panOffset.value;
         panGestureStartPage.value = currentPage.value;
 
         scrollState.value = 'dragging';
       })
       .onChange((e) => {
         const translation = isVertical ? e.translationY : e.translationX;
-        const totalOffset = panGestureStartOffset.value + translation;
 
-        const overdragOffset = overdrag
-          ? getOverdragOffset(totalOffset, contentSize - pageSize)
-          : 0;
-
-        panTotalOffset.value = overdrag
-          ? totalOffset - overdragOffset * overdragResistanceFactor
-          : clamp(totalOffset, -contentSize + pageSize, 0);
-
-        if (
-          overdrag &&
-          onOverdrag &&
-          Math.abs(overdragOffset) > overdragResistanceThreshold
-        ) {
-          const side = getOverdragSide(overdragOffset, isVertical);
-
-          runOnJS(onOverdrag)(side);
-        }
+        panOffset.value = panGestureStartOffset.value + translation;
       })
       .onEnd((e) => {
         const translation = isVertical ? e.translationY : e.translationX;
@@ -407,10 +389,10 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
 
         scrollState.value = 'settling';
 
-        const isNextDirection = velocity < 0;
+        const isStart = velocity < 0;
 
-        const translationProgress = Math.abs(panTotalOffset.value / pageSize);
-        const nextPageVisiblePart = isNextDirection
+        const translationProgress = -panOffset.value / pageSize;
+        const nextPageVisiblePart = isStart
           ? translationProgress % 1
           : 1 - (translationProgress % 1);
 
@@ -418,12 +400,12 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
         const isEnoughPageVisibility =
           nextPageVisiblePart > NEXT_PAGE_VISIBLE_PART_THRESHOLD;
 
-        let nextPage = isNextDirection
+        let nextPage = isStart
           ? Math.floor(translationProgress)
           : Math.ceil(translationProgress);
 
         if (isEnoughVelocity || isEnoughPageVisibility) {
-          nextPage += isNextDirection ? 1 : -1;
+          nextPage += isStart ? 1 : -1;
         }
 
         scrollToPage(nextPage, true);
@@ -453,12 +435,28 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       panGesture = gestureConfiguration(panGesture);
     }
 
-    const pageAnimatedStyle = useAnimatedStyle(() => {
-      return {
-        transform: isVertical
-          ? [{ translateY: panTotalOffset.value }]
-          : [{ translateX: panTotalOffset.value }],
-      };
+    const pageAnimatedStyle = useAnimatedStyle(() => ({
+      transform: [
+        isVertical
+          ? { translateY: interpolatedPanOffset.value }
+          : { translateX: interpolatedPanOffset.value },
+      ],
+    }));
+
+    const pagerStyle = useAnimatedStyle(() => {
+      if (!style) {
+        return {};
+      }
+
+      if (typeof style === 'function') {
+        return style({
+          scrollOffset: -panOffset.value / pageSize,
+          interpolatedScrollOffset: -interpolatedPanOffset.value / pageSize,
+          pageSize,
+        });
+      }
+
+      return style;
     });
 
     const content = Children.map(children, (child, index) => {
@@ -475,8 +473,8 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
           trackOnscreenPageLimit={trackOnscreenPageLimit}
           canRemoveClippedPages={canRemoveClippedPages}
           isRemovingClippedPagesEnabled={removeClippedPages}
-          pageInterpolator={pageInterpolator}
-          scrollPosition={scrollPosition}
+          pageStyleInterpolator={pageStyleInterpolator}
+          scrollPosition={relativePanOffset}
           orientation={orientation}
         >
           {child}
@@ -485,7 +483,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
     });
 
     return (
-      <View style={[styles.flex, style]}>
+      <Animated.View style={[styles.flex, pagerStyle]}>
         <View
           style={StyleSheet.absoluteFill}
           pointerEvents="none"
@@ -524,7 +522,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
             </View>
           </GestureDetector>
         )}
-      </View>
+      </Animated.View>
     );
   }
 );
