@@ -1,10 +1,14 @@
 export { PagerView } from './PagerView';
+
 export { OnscreenPage } from './OnscreenPage';
+
 export { useIsOnscreenPage } from './context';
+
 export {
   createBounceScrollOffsetInterpolator,
   type BounceScrollOffsetInterpolatorConfig,
 } from './interpolators/bounceScrollOffsetInterpolator';
+
 export type {
   PagerViewProps,
   PagerViewRef,
@@ -18,3 +22,5 @@ export type {
   OverscrollSide,
   PagerStyleFn,
 } from './types';
+
+export { getOverscrollOffset } from './utils';

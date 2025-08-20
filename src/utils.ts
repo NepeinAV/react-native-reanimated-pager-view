@@ -2,7 +2,7 @@ import type { OverscrollSide } from './types';
 
 export const getOverscrollOffset = (
   scrollOffset: number,
-  contentSize: number
+  contentSize: number,
 ) => {
   'worklet';
 
@@ -26,7 +26,7 @@ export const getPageOffset = (page: number, pageSize: number) => {
 export const checkPageIndexInRange = (
   page: number,
   index: number,
-  pageLimit: number
+  pageLimit: number,
 ) => {
   'worklet';
 
@@ -45,7 +45,7 @@ export const isArrayEqual = <T>(a: T[], b: T[]): boolean => {
 
 export const getOverscrollSide = (
   overscrollOffset: number,
-  isVertical: boolean
+  isVertical: boolean,
 ): OverscrollSide => {
   'worklet';
 
