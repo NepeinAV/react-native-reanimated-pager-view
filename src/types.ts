@@ -173,6 +173,8 @@ export type PagerViewProps = {
 export type PageStyleInterpolatorParams = {
   pageOffset: number;
   pageIndex: number;
+  pageSize: number;
+  scrollOffset: number;
 };
 
 export type ScrollOffsetInterpolatorParams = {
@@ -182,7 +184,7 @@ export type ScrollOffsetInterpolatorParams = {
 };
 
 export type PageStyleInterpolator = (
-  params: PageStyleInterpolatorParams
+  params: PageStyleInterpolatorParams,
 ) => ViewStyle;
 
 export type ScrollOffsetInterpolator = {

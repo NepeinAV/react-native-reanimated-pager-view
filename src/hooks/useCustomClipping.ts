@@ -27,7 +27,9 @@ export const useCustomClippingProvider = ({
   const tmpValue = useSharedValue(0);
 
   const canRemoveClippedPages = useSharedValue(
-    isRemovingClippedPagesEnabled && IS_CUSTOM_CLIPPING_APPROACH_ENABLED ? 1 : 0
+    isRemovingClippedPagesEnabled && IS_CUSTOM_CLIPPING_APPROACH_ENABLED
+      ? 1
+      : 0,
   );
 
   const setRemoveClippedPages = useCallback(
@@ -49,7 +51,7 @@ export const useCustomClippingProvider = ({
             if (_finished) {
               canRemoveClippedPages.value = 1;
             }
-          }
+          },
         );
       } else {
         cancelAnimation(tmpValue);
@@ -57,7 +59,7 @@ export const useCustomClippingProvider = ({
         canRemoveClippedPages.value = 0;
       }
     },
-    [isRemovingClippedPagesEnabled, canRemoveClippedPages, tmpValue]
+    [isRemovingClippedPagesEnabled, canRemoveClippedPages, tmpValue],
   );
 
   return { setRemoveClippedPages, canRemoveClippedPages };
@@ -68,14 +70,14 @@ export const useCustomClippingReceiver = ({
   pageIndex,
   canRemoveClippedPages,
   isRemovingClippedPagesEnabled,
-  size,
+  pageSize,
   orientation = 'horizontal',
 }: {
   currentPage: SharedValue<number>;
   pageIndex: number;
   canRemoveClippedPages: SharedValue<number>;
   isRemovingClippedPagesEnabled: boolean;
-  size: number;
+  pageSize: number;
   orientation?: Orientation;
 }) => {
   const isPageMountedInNativeTree = useSharedValue(1);
@@ -107,7 +109,7 @@ export const useCustomClippingReceiver = ({
       if (!isInRange && canRemoveClippedPages.value) {
         isPageMountedInNativeTree.value = 0;
       }
-    }
+    },
   );
 
   const clippedPageStyle = useAnimatedStyle(() => {
@@ -115,15 +117,11 @@ export const useCustomClippingReceiver = ({
       return {};
     }
 
-    const offset = size * 1.5;
+    const offset = pageSize * 1.5;
 
     return orientation === 'vertical'
-      ? {
-          top: isPageMountedInNativeTree.value ? 0 : offset,
-        }
-      : {
-          left: isPageMountedInNativeTree.value ? 0 : offset,
-        };
+      ? { top: isPageMountedInNativeTree.value ? 0 : offset }
+      : { left: isPageMountedInNativeTree.value ? 0 : offset };
   });
 
   return { clippedPageStyle };

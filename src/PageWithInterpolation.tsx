@@ -11,6 +11,7 @@ type Props = {
   pageStyleInterpolator: PageStyleInterpolator;
   scrollPosition: SharedValue<ScrollPosition>;
   pageIndex: number;
+  pageSize: number;
 };
 
 export const PageWithInterpolation = ({
@@ -18,13 +19,20 @@ export const PageWithInterpolation = ({
   pageStyleInterpolator,
   scrollPosition,
   pageIndex,
+  pageSize,
 }: Props) => {
   const pageInterpolatorStyle = useAnimatedStyle(() => {
     const { position, offset } = scrollPosition.value;
 
-    const pageOffset = position + offset - pageIndex;
+    const scrollOffset = position + offset;
+    const pageOffset = pageIndex - scrollOffset;
 
-    return pageStyleInterpolator({ pageOffset, pageIndex: pageIndex });
+    return pageStyleInterpolator({
+      pageOffset,
+      scrollOffset,
+      pageIndex,
+      pageSize,
+    });
   });
 
   return children(pageInterpolatorStyle);

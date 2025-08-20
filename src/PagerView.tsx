@@ -74,7 +74,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       scrollOffsetInterpolator,
       orientation = 'horizontal',
     },
-    ref
+    ref,
   ) => {
     const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
@@ -97,9 +97,9 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
     const childrenKeys = useMemo(
       () =>
         Children.map(children, (child, index) =>
-          isValidElement(child) ? child.key : index
+          isValidElement(child) ? child.key : index,
         ) as string[],
-      [children]
+      [children],
     );
 
     const previousChildrenKeys = usePrevious(childrenKeys);
@@ -147,7 +147,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
           runOnJS(onPageSelected)(page);
         }
       },
-      [currentPage, onPageSelected]
+      [currentPage, onPageSelected],
     );
 
     const handleChildrenUpdate = useCallback(() => {
@@ -159,10 +159,10 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
 
       if (holdCurrentPageOnChildrenUpdate && previousChildrenKeys) {
         const currentPageKey = previousChildrenKeys.find(
-          (_, index) => index === currentPageValue
+          (_, index) => index === currentPageValue,
         );
         const nextPageIndex = childrenKeys.findIndex(
-          (key) => key === currentPageKey
+          (key) => key === currentPageKey,
         );
 
         if (nextPageIndex !== -1) {
@@ -231,7 +231,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
 
         const pageOffset = getPageOffset(
           clamp(page, 0, pageCount - 1),
-          pageSize
+          pageSize,
         );
 
         if (animated) {
@@ -243,7 +243,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
             },
             (_finished) => {
               setRemoveClippedPages(true);
-            }
+            },
           );
         } else {
           panOffset.value = pageOffset;
@@ -251,7 +251,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
           setRemoveClippedPages(true);
         }
       },
-      [isLayoutMeasured, pageCount, pageSize, panOffset, setRemoveClippedPages]
+      [isLayoutMeasured, pageCount, pageSize, panOffset, setRemoveClippedPages],
     );
 
     const imperativeScrollToPage = useCallback(
@@ -271,7 +271,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
         scrollToPage,
         setCurrentPageAndNotify,
         setRemoveClippedPages,
-      ]
+      ],
     );
 
     useImperativeHandle(
@@ -281,7 +281,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
         setPageWithoutAnimation: (page: number) =>
           imperativeScrollToPage(page, false),
       }),
-      [imperativeScrollToPage]
+      [imperativeScrollToPage],
     );
 
     const interpolatedPanOffset = useDerivedValue(() => {
@@ -341,7 +341,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
         if (currentPage.value !== nextPage) {
           setCurrentPageAndNotify(nextPage);
         }
-      }
+      },
     );
 
     useAnimatedReaction(
@@ -358,7 +358,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
         if (previousValue === 'dragging' && onDragEnd) {
           runOnJS(onDragEnd)();
         }
-      }
+      },
     );
 
     let panGesture = Gesture.Pan()
@@ -464,7 +464,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
         <PageContainer
           key={childrenKeys[index]}
           currentPage={currentPage}
-          size={pageSize}
+          pageSize={pageSize}
           pageMargin={pageMargin}
           pageIndex={index}
           lazy={lazy}
@@ -524,7 +524,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
         )}
       </Animated.View>
     );
-  }
+  },
 );
 
 const styles = StyleSheet.create({

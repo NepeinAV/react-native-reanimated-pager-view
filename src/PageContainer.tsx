@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = PropsWithChildren<{
-  size: number;
+  pageSize: number;
   pageMargin: number;
   pageIndex: number;
   currentPage: SharedValue<number>;
@@ -47,7 +47,7 @@ type Props = PropsWithChildren<{
   >;
 
 const PageContainer = ({
-  size,
+  pageSize,
   pageMargin,
   children,
   pageIndex,
@@ -65,7 +65,7 @@ const PageContainer = ({
   const [isMounted, setIsMounted] = useState(() =>
     lazy
       ? checkPageIndexInRange(currentPage.value, pageIndex, lazyPageLimit)
-      : true
+      : true,
   );
 
   const [isOnscreen, setIsOnscreen] = useState(() =>
@@ -73,13 +73,13 @@ const PageContainer = ({
       ? checkPageIndexInRange(
           currentPage.value,
           pageIndex,
-          trackOnscreenPageLimit
+          trackOnscreenPageLimit,
         )
-      : true
+      : true,
   );
 
   const { clippedPageStyle } = useCustomClippingReceiver({
-    size,
+    pageSize,
     currentPage,
     pageIndex,
     canRemoveClippedPages,
@@ -97,7 +97,7 @@ const PageContainer = ({
         setIsOnscreen(nextIsOnscreen);
       }
     },
-    [isMounted, lazy, trackOnscreen]
+    [isMounted, lazy, trackOnscreen],
   );
 
   useAnimatedReaction(
@@ -106,16 +106,16 @@ const PageContainer = ({
       const nextIsMounted = checkPageIndexInRange(
         currentPage.value,
         pageIndex,
-        lazyPageLimit
+        lazyPageLimit,
       );
       const nextIsOnscreen = checkPageIndexInRange(
         currentPage.value,
         pageIndex,
-        trackOnscreenPageLimit
+        trackOnscreenPageLimit,
       );
 
       runOnJS(setState)(nextIsMounted, nextIsOnscreen);
-    }
+    },
   );
 
   const mountAnimation = useAnimatedStyle(() => {
@@ -131,8 +131,8 @@ const PageContainer = ({
       <Animated.View
         style={[
           isVertical
-            ? { height: size, paddingVertical: pageMargin / 2 }
-            : { width: size, paddingHorizontal: pageMargin / 2 },
+            ? { height: pageSize, paddingVertical: pageMargin / 2 }
+            : { width: pageSize, paddingHorizontal: pageMargin / 2 },
           styles.flex,
           styles.hidden,
           style,
@@ -158,6 +158,7 @@ const PageContainer = ({
         pageStyleInterpolator={pageStyleInterpolator}
         scrollPosition={scrollPosition}
         pageIndex={pageIndex}
+        pageSize={pageSize}
       >
         {renderPage}
       </PageWithInterpolation>
