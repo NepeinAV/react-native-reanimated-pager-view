@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 
 import { CONSTANTS } from '../constants';
 
@@ -8,16 +8,11 @@ import type { Banner } from '../types';
 
 interface BannerItemProps {
   banner: Banner;
-  onPress?: () => void;
 }
 
-export const BannerItem: React.FC<BannerItemProps> = ({ banner, onPress }) => {
+export const BannerItem: React.FC<BannerItemProps> = ({ banner }) => {
   return (
-    <TouchableOpacity
-      style={[styles.bannerContainer, { backgroundColor: banner.color }]}
-      onPress={onPress}
-      activeOpacity={0.8}
-    >
+    <View style={[styles.bannerContainer, { backgroundColor: banner.color }]}>
       <View style={styles.imageContainer}>
         <Text style={styles.imageEmoji}>{banner.image}</Text>
       </View>
@@ -25,13 +20,13 @@ export const BannerItem: React.FC<BannerItemProps> = ({ banner, onPress }) => {
         <Text style={styles.title}>{banner.title}</Text>
         <Text style={styles.subtitle}>{banner.subtitle}</Text>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   bannerContainer: {
-    width: 280,
+    width: '100%',
     height: 120,
     borderRadius: CONSTANTS.BORDER_RADIUS.MEDIUM,
     marginRight: CONSTANTS.SPACING.LARGE,
