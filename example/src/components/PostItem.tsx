@@ -1,8 +1,12 @@
 import React from 'react';
+
 import { View, Text, TouchableOpacity } from 'react-native';
-import type { Post } from '../types';
+
 import { postStyles } from '../styles/postStyles';
+
 import { Avatar } from './Avatar';
+
+import type { Post } from '../types';
 
 interface PostItemProps {
   post: Post;

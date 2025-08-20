@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+
 import { CONSTANTS } from '../constants';
 
 export const chatStyles = StyleSheet.create({

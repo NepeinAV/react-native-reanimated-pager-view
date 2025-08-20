@@ -1,8 +1,12 @@
 import React from 'react';
+
 import { View, Text, TouchableOpacity } from 'react-native';
-import type { Chat } from '../types';
+
 import { chatStyles } from '../styles/chatStyles';
+
 import { Avatar } from './Avatar';
+
+import type { Chat } from '../types';
 
 interface ChatItemProps {
   chat: Chat;

@@ -1,9 +1,13 @@
 import React, { useCallback } from 'react';
+
 import { View, Text, TouchableOpacity } from 'react-native';
-import type { Notification } from '../types';
+
 import { notificationStyles } from '../styles/notificationStyles';
-import { Avatar } from './Avatar';
 import { getNotificationIcon } from '../utils/notificationUtils';
+
+import { Avatar } from './Avatar';
+
+import type { Notification } from '../types';
 
 interface SimpleNotificationItemProps {
   notification: Notification;

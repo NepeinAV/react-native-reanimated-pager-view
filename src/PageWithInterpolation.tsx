@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
+
 import { type ViewStyle } from 'react-native';
+
 import { type SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
 import { type PageStyleInterpolator, type ScrollPosition } from './types';

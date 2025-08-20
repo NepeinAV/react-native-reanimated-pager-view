@@ -1,13 +1,17 @@
 import React, { useMemo, useCallback } from 'react';
+
 import { FlatList } from 'react-native';
-import { ChatItem } from './ChatItem';
-import type { Chat } from '../types';
-import { styles } from '../styles';
+
 import { chatsData } from '../data/chats';
 import {
   useOptimizedFlatListConfig,
   keyExtractorById,
 } from '../hooks/useFlatListOptimization';
+import { styles } from '../styles';
+
+import { ChatItem } from './ChatItem';
+
+import type { Chat } from '../types';
 
 interface MessagesPageProps {}
 

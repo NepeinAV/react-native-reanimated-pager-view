@@ -1,4 +1,5 @@
 import { useMemo, useCallback, useRef } from 'react';
+
 import {
   StatusBar,
   StyleSheet,
@@ -8,14 +9,8 @@ import {
   Dimensions,
   useWindowDimensions,
 } from 'react-native';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import {
-  createBounceScrollOffsetInterpolator,
-  PagerView,
-  type PagerViewRef,
-  type PageStyleInterpolator,
-} from 'react-native-reanimated-pager-view';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -23,19 +18,27 @@ import Animated, {
   Extrapolation,
 } from 'react-native-reanimated';
 import {
+  createBounceScrollOffsetInterpolator,
+  PagerView,
+  type PagerViewRef,
+  type PageStyleInterpolator,
+} from 'react-native-reanimated-pager-view';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+
+import {
   BottomSheetModalProvider,
   BottomSheetModal,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
 
-import { NavigationIcon } from './components/NavigationIcon';
 import { FeedPage } from './components/FeedPage';
 import { MessagesPage } from './components/MessagesPage';
+import { NavigationIcon } from './components/NavigationIcon';
+import { NotificationsBottomSheet } from './components/NotificationsBottomSheet';
 import { ProfilePage } from './components/ProfilePage';
 import { Shorts } from './components/Shorts';
-import { NotificationsBottomSheet } from './components/NotificationsBottomSheet';
-import { styles as appStyles } from './styles';
 import { CONSTANTS } from './constants';
+import { styles as appStyles } from './styles';
 
 const AnimatedSafeArea = Animated.createAnimatedComponent(SafeAreaView);
 

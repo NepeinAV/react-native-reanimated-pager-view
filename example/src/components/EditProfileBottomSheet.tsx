@@ -1,4 +1,5 @@
 import { useRef, useState, useCallback, useMemo } from 'react';
+
 import {
   View,
   Text,
@@ -7,16 +8,18 @@ import {
   Dimensions,
   StyleSheet,
 } from 'react-native';
-import {
-  PagerView,
-  type PagerViewRef,
-} from 'react-native-reanimated-pager-view';
+
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   interpolate,
   Extrapolation,
 } from 'react-native-reanimated';
+import {
+  PagerView,
+  type PagerViewRef,
+} from 'react-native-reanimated-pager-view';
+
 import { CONSTANTS } from '../constants';
 
 const { width: screenWidth } = Dimensions.get('window');

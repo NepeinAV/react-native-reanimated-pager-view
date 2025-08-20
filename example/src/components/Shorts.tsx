@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+
 import {
   Text,
   View,
@@ -6,6 +7,7 @@ import {
   StatusBar,
   TouchableOpacity,
 } from 'react-native';
+
 import { interpolate } from 'react-native-reanimated';
 import {
   PagerView,
@@ -151,9 +153,7 @@ const Shorts: React.FC = () => {
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.actionButton}>
-                  <Text style={[styles.actionIcon, { color: '#FF3040' }]}>
-                    {'❤️'}
-                  </Text>
+                  <Text style={[styles.actionIcon, styles.likeIcon]}>❤️</Text>
                   <Text style={styles.actionText}>{video.likes}</Text>
                 </TouchableOpacity>
 
@@ -312,6 +312,9 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 12,
     fontWeight: '600',
+  },
+  likeIcon: {
+    color: '#FF3040',
   },
 });
 

@@ -1,9 +1,11 @@
 import React from 'react';
+
 import Animated, {
   useAnimatedStyle,
   withSpring,
   interpolate,
 } from 'react-native-reanimated';
+
 import { styles } from '../styles';
 
 interface NavigationIconProps {

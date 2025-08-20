@@ -1,7 +1,10 @@
 import React from 'react';
+
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import type { Banner } from '../types';
+
 import { CONSTANTS } from '../constants';
+
+import type { Banner } from '../types';
 
 interface BannerItemProps {
   banner: Banner;

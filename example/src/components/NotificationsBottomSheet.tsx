@@ -1,4 +1,5 @@
 import { useRef, useState, useCallback, useMemo } from 'react';
+
 import {
   View,
   Text,
@@ -6,21 +7,25 @@ import {
   Dimensions,
   StyleSheet,
 } from 'react-native';
-import {
-  PagerView,
-  type PagerViewRef,
-} from 'react-native-reanimated-pager-view';
+
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   interpolate,
   Extrapolation,
 } from 'react-native-reanimated';
-import type { Notification } from '../types';
-import { notificationsData } from '../data/notifications';
+import {
+  PagerView,
+  type PagerViewRef,
+} from 'react-native-reanimated-pager-view';
+
 import { CONSTANTS } from '../constants';
 import { NOTIFICATION_TABS } from '../constants/notifications';
+import { notificationsData } from '../data/notifications';
+
 import { NotificationPage } from './NotificationPage';
+
+import type { Notification } from '../types';
 
 const { width: screenWidth } = Dimensions.get('window');
 

@@ -1,5 +1,7 @@
 import { type ReactNode } from 'react';
+
 import { type ViewStyle } from 'react-native';
+
 import type { PanGesture } from 'react-native-gesture-handler';
 
 export type PagerStyleFn = (params: {

@@ -1,4 +1,5 @@
 import React, { useRef, useCallback } from 'react';
+
 import {
   View,
   Text,
@@ -7,12 +8,15 @@ import {
   useWindowDimensions,
   StyleSheet,
 } from 'react-native';
+
 import { BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet';
-import { profileStyles } from '../styles/profileStyles';
-import { styles } from '../styles';
-import { EditProfileBottomSheet } from './EditProfileBottomSheet';
-import { Avatar } from './Avatar';
+
 import { CONSTANTS } from '../constants';
+import { styles } from '../styles';
+import { profileStyles } from '../styles/profileStyles';
+
+import { Avatar } from './Avatar';
+import { EditProfileBottomSheet } from './EditProfileBottomSheet';
 
 export const ProfilePage: React.FC = () => {
   const bottomSheetRef = useRef<BottomSheetModal>(null);

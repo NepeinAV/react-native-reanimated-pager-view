@@ -1,14 +1,19 @@
 import React, { useCallback, useMemo } from 'react';
+
 import { View, Text } from 'react-native';
-import type { Notification } from '../types';
+
+import { FlatList } from 'react-native-gesture-handler';
+
+import { useOptimizedFlatListConfig } from '../hooks/useFlatListOptimization';
 import { notificationStyles } from '../styles/notificationStyles';
-import { NotificationItem } from './NotificationItem';
 import {
   groupNotificationsByTime,
   createFlatListDataWithHeaders,
 } from '../utils/notificationUtils';
-import { useOptimizedFlatListConfig } from '../hooks/useFlatListOptimization';
-import { FlatList } from 'react-native-gesture-handler';
+
+import { NotificationItem } from './NotificationItem';
+
+import type { Notification } from '../types';
 
 interface NotificationPageProps {
   notifications: Notification[];
