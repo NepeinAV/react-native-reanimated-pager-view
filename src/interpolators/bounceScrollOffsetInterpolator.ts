@@ -1,4 +1,5 @@
 import { makeMutable, runOnJS } from 'react-native-reanimated';
+
 import { type ScrollOffsetInterpolator, type OverscrollSide } from '../types';
 import { getOverscrollOffset, getOverscrollSide } from '../utils';
 

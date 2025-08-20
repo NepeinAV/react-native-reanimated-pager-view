@@ -1,5 +1,7 @@
 import { memo, type PropsWithChildren, useCallback, useState } from 'react';
+
 import { StyleSheet, type ViewStyle } from 'react-native';
+
 import Animated, {
   runOnJS,
   type SharedValue,
@@ -8,8 +10,9 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { PageOnscreenContext } from './context';
-import { useCustomClippingReceiver } from './hooks';
+import { OnscreenPageContext } from './context';
+import { useCustomClippingReceiver } from './hooks/useCustomClipping';
+import { PageWithInterpolation } from './PageWithInterpolation';
 import {
   type PagerViewProps,
   type PageStyleInterpolator,
@@ -17,7 +20,6 @@ import {
   type Orientation,
 } from './types';
 import { checkPageIndexInRange } from './utils';
-import { PageWithInterpolation } from './PageWithInterpolation';
 
 const styles = StyleSheet.create({
   flex: {
@@ -141,9 +143,9 @@ const PageContainer = ({
           style={[styles.flex, styles.hidden, mountAnimation, clippedPageStyle]}
         >
           {isMounted ? (
-            <PageOnscreenContext.Provider value={isOnscreen}>
+            <OnscreenPageContext.Provider value={isOnscreen}>
               {children}
-            </PageOnscreenContext.Provider>
+            </OnscreenPageContext.Provider>
           ) : null}
         </Animated.View>
       </Animated.View>

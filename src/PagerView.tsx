@@ -10,7 +10,9 @@ import {
   useState,
   useEffect,
 } from 'react';
+
 import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
+
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   cancelAnimation,
@@ -24,12 +26,10 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 
+import { useCustomClippingProvider } from './hooks/useCustomClipping';
+import { useExecuteEffectOnce } from './hooks/useExecuteEffectOnce';
+import { usePrevious } from './hooks/usePrevious';
 import { PageContainer } from './PageContainer';
-import {
-  useCustomClippingProvider,
-  useExecuteEffectOnce,
-  usePrevious,
-} from './hooks';
 import {
   type PagerViewProps,
   type PagerViewRef,

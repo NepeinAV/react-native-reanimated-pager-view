@@ -1,5 +1,7 @@
-import { useCallback, useRef, useEffect } from 'react';
+import { useCallback } from 'react';
+
 import { Platform } from 'react-native';
+
 import {
   cancelAnimation,
   ReduceMotion,
@@ -10,8 +12,9 @@ import {
   withTiming,
 } from 'react-native-reanimated';
 
-import { checkPageIndexInRange } from './utils';
-import type { Orientation } from './types';
+import { checkPageIndexInRange } from '../utils';
+
+import type { Orientation } from '../types';
 
 const IS_CUSTOM_CLIPPING_APPROACH_ENABLED = Platform.OS === 'android';
 const REMOVE_CLIPPED_PAGES_DELAY_MS = 5000;
@@ -124,24 +127,4 @@ export const useCustomClippingReceiver = ({
   });
 
   return { clippedPageStyle };
-};
-
-export const useExecuteEffectOnce = (executor: () => boolean | void) => {
-  const isExecuted = useRef(false);
-
-  useEffect(() => {
-    if (!isExecuted.current) {
-      isExecuted.current = executor() !== false;
-    }
-  }, [executor]);
-};
-
-export const usePrevious = <T>(value: T): T | undefined => {
-  const ref = useRef<T | undefined>(undefined);
-
-  useEffect(() => {
-    ref.current = value;
-  }, [value]);
-
-  return ref.current;
 };
