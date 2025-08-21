@@ -50,7 +50,7 @@ export const EditProfileBottomSheet = () => {
       'worklet';
       animatedPage.value = e.position + e.offset;
     },
-    [animatedPage]
+    [animatedPage],
   );
 
   const tabBackgroundStyle = useAnimatedStyle(() => {
@@ -59,7 +59,7 @@ export const EditProfileBottomSheet = () => {
       animatedPage.value,
       [0, TABS.length - 1],
       [0, tabWidth * (TABS.length - 1)],
-      Extrapolation.CLAMP
+      Extrapolation.CLAMP,
     );
 
     return {
@@ -87,7 +87,7 @@ export const EditProfileBottomSheet = () => {
       <SettingsTab key="settings" />,
       <SecurityTab key="security" />,
     ],
-    []
+    [],
   );
 
   return (

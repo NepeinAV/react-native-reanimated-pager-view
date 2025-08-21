@@ -24,7 +24,7 @@ export const NavigationIcon: React.FC<NavigationIconProps> = ({
       animatedPage.value,
       [index - 1, index, index + 1],
       [1, 1.2, 1],
-      'clamp'
+      'clamp',
     );
 
     return {

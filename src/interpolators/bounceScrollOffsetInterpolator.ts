@@ -39,7 +39,7 @@ export type BounceScrollOffsetInterpolatorConfig = {
  * Creates a scroll offset interpolator with overscroll resistance
  */
 export const createBounceScrollOffsetInterpolator = (
-  config: BounceScrollOffsetInterpolatorConfig = {}
+  config: BounceScrollOffsetInterpolatorConfig = {},
 ): ScrollOffsetInterpolator => {
   const {
     resistanceFactor = 0.7,

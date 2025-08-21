@@ -21,7 +21,7 @@ export const MessagesPage: React.FC<MessagesPageProps> = () => {
 
   const renderChat = useCallback(
     ({ item }: { item: Chat }) => <ChatItem chat={item} />,
-    []
+    [],
   );
 
   return (

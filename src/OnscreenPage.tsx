@@ -20,6 +20,6 @@ export const OnscreenPage = ({ children, once = false }: Props) => {
 
   return useMemo(
     () => children(actualIsOnscreen),
-    [actualIsOnscreen, children]
+    [actualIsOnscreen, children],
   );
 };

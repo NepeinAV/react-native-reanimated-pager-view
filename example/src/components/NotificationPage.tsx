@@ -44,14 +44,14 @@ export const NotificationPage: React.FC<NotificationPageProps> = ({
         <Text style={notificationStyles.sectionHeaderText}>{title}</Text>
       </View>
     ),
-    []
+    [],
   );
 
   const renderNotification = useCallback(
     ({ item }: { item: Notification }) => (
       <NotificationItem notification={item} onPress={onNotificationPress} />
     ),
-    [onNotificationPress]
+    [onNotificationPress],
   );
 
   const renderItem = useCallback(
@@ -65,7 +65,7 @@ export const NotificationPage: React.FC<NotificationPageProps> = ({
       }
       return renderNotification({ item: item.data as Notification });
     },
-    [renderSectionHeader, renderNotification]
+    [renderSectionHeader, renderNotification],
   );
 
   const flatListData = useMemo(() => {

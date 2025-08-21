@@ -70,7 +70,7 @@ const App = () => {
       { id: 'vertical', title: 'Shorts', icon: '📺' },
       { id: 'profile', title: 'Profile', icon: '👤' },
     ],
-    []
+    [],
   );
 
   const onPageScroll = useCallback(
@@ -79,7 +79,7 @@ const App = () => {
 
       pagerScrollPosition.value = e.position + e.offset;
     },
-    [pagerScrollPosition]
+    [pagerScrollPosition],
   );
 
   const navItemBackgroundAnimatedStyle = useAnimatedStyle(() => {
@@ -87,7 +87,7 @@ const App = () => {
       pagerScrollPosition.value,
       [0, pages.length - 1],
       [0, (screenWidth / pages.length) * (pages.length - 1)],
-      Extrapolation.CLAMP
+      Extrapolation.CLAMP,
     );
 
     return {
@@ -101,7 +101,7 @@ const App = () => {
       pagerScrollPosition.value,
       [1.25, 2, 2.75],
       [0, 1, 0],
-      'clamp'
+      'clamp',
     );
 
     return {
@@ -119,7 +119,7 @@ const App = () => {
 
       ref.current?.setPage(pageIndex);
     },
-    [pages.length]
+    [pages.length],
   );
 
   const renderPage = useCallback((pageId: string) => {

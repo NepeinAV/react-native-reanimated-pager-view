@@ -111,7 +111,7 @@ const rubberBandStyle: PagerStyleFn = ({ scrollOffset }) => {
         scaleY: interpolate(
           scrollOffset,
           [-1, 0, videos.length - 1, videos.length],
-          [1.25, 1, 1, 1.25]
+          [1.25, 1, 1, 1.25],
         ),
       },
     ],

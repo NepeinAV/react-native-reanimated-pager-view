@@ -26,7 +26,7 @@ export const getTimeGroupKey = (time: string): string => {
 };
 
 export const groupNotificationsByTime = (
-  notifications: Notification[]
+  notifications: Notification[],
 ): { [key: string]: Notification[] } => {
   const groups: { [key: string]: Notification[] } = {};
 

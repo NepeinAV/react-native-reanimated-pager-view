@@ -33,7 +33,7 @@ export const NotificationsBottomSheet = () => {
   const pagerRef = useRef<PagerViewRef>(null);
   const [activeTab, setActiveTab] = useState(0);
   const [notifications, setNotifications] = useState<Notification[]>(
-    () => notificationsData
+    () => notificationsData,
   );
 
   const animatedPage = useSharedValue(0);
@@ -52,7 +52,7 @@ export const NotificationsBottomSheet = () => {
       'worklet';
       animatedPage.value = e.position + e.offset;
     },
-    [animatedPage]
+    [animatedPage],
   );
 
   const handleNotificationPress = useCallback((id: string) => {
@@ -60,8 +60,8 @@ export const NotificationsBottomSheet = () => {
       prev.map((notification) =>
         notification.id === id
           ? { ...notification, isRead: true }
-          : notification
-      )
+          : notification,
+      ),
     );
   }, []);
 
@@ -71,7 +71,7 @@ export const NotificationsBottomSheet = () => {
       animatedPage.value,
       [0, NOTIFICATION_TABS.length - 1],
       [0, tabWidth * (NOTIFICATION_TABS.length - 1)],
-      Extrapolation.CLAMP
+      Extrapolation.CLAMP,
     );
 
     return {
@@ -126,7 +126,7 @@ export const NotificationsBottomSheet = () => {
           />
         );
       }),
-    [filteredNotifications, handleNotificationPress]
+    [filteredNotifications, handleNotificationPress],
   );
 
   return (
