@@ -33,14 +33,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: CONSTANTS.SPACING.EXTRA_LARGE,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    marginVertical: CONSTANTS.SPACING.LARGE,
+    boxShadow: [
+      {
+        offsetX: 0,
+        offsetY: 0,
+        blurRadius: 20,
+        spreadDistance: 0,
+        color: `rgba(0, 0, 0, 0.2)`,
+      },
+    ],
   },
   imageContainer: {
     width: 60,

@@ -51,7 +51,7 @@ export const styles = StyleSheet.create({
   },
   bannerPage: {
     flex: 1,
-    paddingHorizontal: 20,
+    marginHorizontal: CONSTANTS.SPACING.MEDIUM * 2,
   },
   pagerIndicator: {
     flexDirection: 'row',

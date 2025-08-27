@@ -84,10 +84,12 @@ export const cardStackPageInterpolator: PageStyleInterpolator = ({
         },
       ],
       zIndex: 100 - pageIndex,
+      opacity: interpolate(pageOffset, [0, 1.5, 2], [1, 1, 0.3]),
     };
   }
 
   return {
+    opacity: interpolate(pageOffset, [-1, 0], [0, 1]),
     zIndex: 100 - pageIndex,
   };
 };
