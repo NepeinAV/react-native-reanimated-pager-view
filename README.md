@@ -89,7 +89,7 @@ export default function App() {
           <Text>{page.title}</Text>
         </View>
       )),
-    []
+    [],
   );
 
   return (
@@ -240,10 +240,10 @@ Enable tracking of which pages are currently visible on screen. Useful for analy
 
 ### Page Management
 
-| Property                          | Type             | Default                          | Description                                                                                                                                               |
-| --------------------------------- | ---------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `holdCurrentPageOnChildrenUpdate` | `boolean`        | `false`                          | Maintain current page position when children array changes. Useful when pages are dynamically added/removed and you want to stay on the same logical page |
-| `estimatedWidth`                  | `number \| null` | `Dimensions.get('window').width` | Expected container width. If `null`, width will be measured on first render (may cause layout shift)                                                      |
+| Property                          | Type             | Default                          | Description                                                                                                                                                |
+| --------------------------------- | ---------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `holdCurrentPageOnChildrenUpdate` | `boolean`        | `false`                          | Maintain current page position when children array changes. Useful when pages are dynamically added/removed and you want to stay on the same logical page  |
+| `estimatedSize`                   | `number \| null` | `Dimensions.get('window').width` | Expected container size (width for horizontal, height for vertical orientation). If `null`, size will be measured on first render (may cause layout shift) |
 
 ### Ref Methods
 
@@ -295,7 +295,7 @@ const VideoPage = ({ videoUri }) => {
 const App = () => {
   const children = useMemo(
     () => PAGES.map((page) => <VideoPage key={page.id} videoUri={page.uri} />),
-    []
+    [],
   );
 
   return (
@@ -364,7 +364,7 @@ const VisibilityTrackingExample = () => {
       VISIBILITY_PAGES.map((page) => (
         <PageWithTracking key={page.id} data={page} />
       )),
-    []
+    [],
   );
 
   return (
@@ -404,7 +404,7 @@ const VerticalExample = () => {
           <Text style={styles.title}>{page.title}</Text>
         </View>
       )),
-    [pages]
+    [pages],
   );
 
   // Create bounce interpolator for vertical mode
@@ -485,7 +485,7 @@ const CustomAnimationPager = () => {
           </Text>
         </View>
       )),
-    []
+    [],
   );
 
   return (
@@ -510,7 +510,7 @@ const LAZY_PAGES = [
 const LazyPagerExample = () => {
   const children = useMemo(
     () => LAZY_PAGES.map((page) => <LazyPage key={page.id} data={page} />),
-    []
+    [],
   );
 
   return (
@@ -546,7 +546,7 @@ const CustomGesturePager = () => {
           <Text>{page.title}</Text>
         </View>
       )),
-    []
+    [],
   );
 
   return (
@@ -577,7 +577,7 @@ function MyPagerScreen() {
       { id: 'page2', title: 'Page 2' },
       { id: 'page3', title: 'Page 3' },
     ],
-    []
+    [],
   );
 
   const customGestureConfig = useCallback(
@@ -588,7 +588,7 @@ function MyPagerScreen() {
 
       return gesture;
     },
-    [navigationGestureRef]
+    [navigationGestureRef],
   );
 
   const children = useMemo(
@@ -598,7 +598,7 @@ function MyPagerScreen() {
           <Text>{page.title}</Text>
         </View>
       )),
-    [pages]
+    [pages],
   );
 
   return (
@@ -638,7 +638,7 @@ const OptimizedPager = memo(() => {
   const children = useMemo(
     () =>
       STATIC_PAGES.map((page) => <MemoizedPage key={page.id} data={page} />),
-    []
+    [],
   );
 
   // Memoize callbacks
@@ -651,7 +651,7 @@ const OptimizedPager = memo(() => {
       lazy={true}
       lazyPageLimit={1}
       removeClippedPages={true}
-      estimatedWidth={screenWidth}
+      estimatedSize={screenWidth}
       onPageSelected={handlePageSelected}
     >
       {children}
