@@ -1,3 +1,5 @@
+import { isValidElement, type ReactNode } from 'react';
+
 import type { OverscrollSide } from './types';
 
 export const getOverscrollOffset = (
@@ -57,3 +59,8 @@ export const getOverscrollSide = (
 
   return isStart ? 'left' : 'right';
 };
+
+export const isFabric = !!global.nativeFabricUIManager;
+
+export const getChildKey = (child: ReactNode, index: number) =>
+  isValidElement(child) ? child.key : index;

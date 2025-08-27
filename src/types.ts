@@ -115,31 +115,17 @@ export type PagerViewProps = {
   trackOnscreenPageLimit?: number;
 
   /**
-   * Allows specifying the width of the parent container. If not set, the screen width is used by default.
+   * Allows specifying the size (width or height, depending on the orientation) of the parent container. If not set, the screen width is used by default.
    *
    * ----
    *
-   * If the container width is unknown in advance, set to `null`. On first render, the available parent width will be obtained, and only then will the pages be rendered.
+   * If the container size is unknown in advance, set to `null`. On first render, the available parent size will be obtained, and only then will the pages be rendered.
    *
    * **This is not recommended, as it increases total render time and the interface may appear less smooth if pages are heavy.**
    *
    * @default Screen width
    */
-  estimatedWidth?: number | null;
-
-  /**
-   * Allows specifying the height of the parent container. If not set, the screen height is used by default.
-   * Only used when orientation is 'vertical'.
-   *
-   * ----
-   *
-   * If the container height is unknown in advance, set to `null`. On first render, the available parent height will be obtained, and only then will the pages be rendered.
-   *
-   * **This is not recommended, as it increases total render time and the interface may appear less smooth if pages are heavy.**
-   *
-   * @default Screen height
-   */
-  estimatedHeight?: number | null;
+  estimatedSize?: number | null;
 
   /**
    * Reduces device load by removing inactive pages on the native platform, while preserving all input, scroll, etc. states.
