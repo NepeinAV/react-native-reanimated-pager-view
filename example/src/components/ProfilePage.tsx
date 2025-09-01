@@ -3,11 +3,13 @@ import React, { useRef, useCallback } from 'react';
 import {
   View,
   Text,
-  ScrollView,
   TouchableOpacity,
   useWindowDimensions,
   StyleSheet,
+  ScrollView,
 } from 'react-native';
+
+import { ScrollableWrapper } from 'react-native-reanimated-pager-view';
 
 import { BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet';
 
@@ -28,40 +30,42 @@ export const ProfilePage: React.FC = () => {
 
   return (
     <>
-      <ScrollView
-        style={styles.pageContainer}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={profileStyles.profileHeader}>
-          <View style={profileStyles.profileAvatarWrapper}>
-            <Avatar text="YP" size="large" />
+      <ScrollableWrapper orientation="vertical">
+        <ScrollView
+          style={styles.pageContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={profileStyles.profileHeader}>
+            <View style={profileStyles.profileAvatarWrapper}>
+              <Avatar text="YP" size="large" />
+            </View>
+            <Text style={profileStyles.profileName}>Your Profile</Text>
+            <Text style={profileStyles.profileBio}>
+              React Native Developer • Building beautiful apps
+            </Text>
+            <View style={profileStyles.profileStats}>
+              <View style={profileStyles.statItem}>
+                <Text style={profileStyles.statNumber}>127</Text>
+                <Text style={profileStyles.statLabel}>Posts</Text>
+              </View>
+              <View style={profileStyles.statItem}>
+                <Text style={profileStyles.statNumber}>1.2k</Text>
+                <Text style={profileStyles.statLabel}>Followers</Text>
+              </View>
+              <View style={profileStyles.statItem}>
+                <Text style={profileStyles.statNumber}>456</Text>
+                <Text style={profileStyles.statLabel}>Following</Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              style={profileStyles.editProfileButton}
+              onPress={openSheet}
+            >
+              <Text style={profileStyles.editProfileText}>Edit Profile</Text>
+            </TouchableOpacity>
           </View>
-          <Text style={profileStyles.profileName}>Your Profile</Text>
-          <Text style={profileStyles.profileBio}>
-            React Native Developer • Building beautiful apps
-          </Text>
-          <View style={profileStyles.profileStats}>
-            <View style={profileStyles.statItem}>
-              <Text style={profileStyles.statNumber}>127</Text>
-              <Text style={profileStyles.statLabel}>Posts</Text>
-            </View>
-            <View style={profileStyles.statItem}>
-              <Text style={profileStyles.statNumber}>1.2k</Text>
-              <Text style={profileStyles.statLabel}>Followers</Text>
-            </View>
-            <View style={profileStyles.statItem}>
-              <Text style={profileStyles.statNumber}>456</Text>
-              <Text style={profileStyles.statLabel}>Following</Text>
-            </View>
-          </View>
-          <TouchableOpacity
-            style={profileStyles.editProfileButton}
-            onPress={openSheet}
-          >
-            <Text style={profileStyles.editProfileText}>Edit Profile</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </ScrollableWrapper>
 
       <BottomSheetModal
         ref={bottomSheetRef}

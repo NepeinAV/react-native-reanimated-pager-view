@@ -17,6 +17,7 @@ import Animated, {
 import {
   PagerView,
   type PagerViewRef,
+  type ScrollPosition,
 } from 'react-native-reanimated-pager-view';
 
 import { CONSTANTS } from '../constants';
@@ -48,9 +49,10 @@ export const NotificationsBottomSheet = () => {
   }, []);
 
   const onPageScroll = useCallback(
-    (e: { position: number; offset: number }) => {
+    (position: ScrollPosition) => {
       'worklet';
-      animatedPage.value = e.position + e.offset;
+
+      animatedPage.value = position;
     },
     [animatedPage],
   );

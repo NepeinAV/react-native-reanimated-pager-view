@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 
 import {
   Text,
@@ -101,15 +101,15 @@ const videos = [
   },
 ];
 
-const rubberBandStyle: PagerStyleFn = ({ scrollOffset }) => {
+const rubberBandStyle: PagerStyleFn = ({ scrollPosition }) => {
   'worklet';
 
   return {
-    transformOrigin: scrollOffset < 0 ? 'top' : 'bottom',
+    transformOrigin: scrollPosition < 0 ? 'top' : 'bottom',
     transform: [
       {
         scaleY: interpolate(
-          scrollOffset,
+          scrollPosition,
           [-1, 0, videos.length - 1, videos.length],
           [1.25, 1, 1, 1.25],
         ),

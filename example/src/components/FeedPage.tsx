@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 
-import { View, Text, FlatList } from 'react-native';
+import { View, Text, FlatList, ScrollView, StyleSheet } from 'react-native';
 
 import Animated, {
   useSharedValue,
@@ -10,6 +10,7 @@ import Animated, {
 import { interpolate } from 'react-native-reanimated';
 import {
   PagerView,
+  ScrollableWrapper,
   createBounceScrollOffsetInterpolator,
   getOverscrollOffset,
   type PageStyleInterpolator,
@@ -66,7 +67,7 @@ export const cardStackPageInterpolator: PageStyleInterpolator = ({
   pageOffset,
   pageIndex,
   pageSize,
-  scrollOffset,
+  scrollPosition,
 }) => {
   'worklet';
 
@@ -76,8 +77,8 @@ export const cardStackPageInterpolator: PageStyleInterpolator = ({
         {
           translateX:
             pageIndex * -pageSize +
-            16 * (pageIndex - scrollOffset) +
-            scrollOffset * pageSize,
+            16 * (pageIndex - scrollPosition) +
+            scrollPosition * pageSize,
         },
         {
           scale: interpolate(pageOffset, [0, 1], [1, 0.965]),
@@ -96,14 +97,23 @@ export const cardStackPageInterpolator: PageStyleInterpolator = ({
 
 const bounceInterpolator = createBounceScrollOffsetInterpolator();
 
+const categories = [
+  '🔥 Trending',
+  '⭐ Favorites',
+  '📸 Photos',
+  '🎵 Music',
+  '📱 Apps',
+  '🎮 Games',
+];
+
 const BannersHeader: React.FC<{ banners: Banner[] }> = ({ banners }) => {
   const scrollOffset = useSharedValue(0);
 
   const onPageScroll = useCallback(
-    (e: ScrollPosition) => {
+    (position: ScrollPosition) => {
       'worklet';
 
-      scrollOffset.value = e.offset + e.position;
+      scrollOffset.value = position;
     },
     [scrollOffset],
   );
@@ -127,6 +137,29 @@ const BannersHeader: React.FC<{ banners: Banner[] }> = ({ banners }) => {
         scrollOffset={scrollOffset}
         totalPages={banners.length}
       />
+
+      <View style={localStyles.categoriesSection}>
+        <Text style={styles.sectionTitle}>Categories</Text>
+        <ScrollableWrapper orientation="horizontal">
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={localStyles.categoriesContainer}
+          >
+            {categories.map((action, index) => (
+              <View
+                key={action}
+                style={[
+                  localStyles.categoryItem,
+                  { backgroundColor: `hsl(${index * 60}, 70%, 60%)` },
+                ]}
+              >
+                <Text style={localStyles.categoryText}>{action}</Text>
+              </View>
+            ))}
+          </ScrollView>
+        </ScrollableWrapper>
+      </View>
     </View>
   );
 };
@@ -139,14 +172,36 @@ export const FeedPage: React.FC = () => {
   const renderPost = ({ item }: { item: Post }) => <PostItem post={item} />;
 
   return (
-    <FlatList
-      style={styles.pageContainer}
-      data={posts}
-      renderItem={renderPost}
-      keyExtractor={keyExtractorById}
-      ListHeaderComponent={<BannersHeader banners={banners} />}
-      contentContainerStyle={postStyles.postsSection}
-      {...flatListConfig}
-    />
+    <ScrollableWrapper orientation="vertical">
+      <FlatList
+        style={styles.pageContainer}
+        data={posts}
+        renderItem={renderPost}
+        keyExtractor={keyExtractorById}
+        ListHeaderComponent={<BannersHeader banners={banners} />}
+        contentContainerStyle={postStyles.postsSection}
+        {...flatListConfig}
+      />
+    </ScrollableWrapper>
   );
 };
+
+const localStyles = StyleSheet.create({
+  categoriesSection: {
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  categoriesContainer: {
+    paddingHorizontal: 16,
+    gap: 10,
+  },
+  categoryItem: {
+    padding: 10,
+    borderRadius: 99999,
+  },
+  categoryText: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#fff',
+  },
+});

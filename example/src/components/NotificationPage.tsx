@@ -1,8 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
 
-import { View, Text } from 'react-native';
+import { View, Text, FlatList } from 'react-native';
 
-import { FlatList } from 'react-native-gesture-handler';
+// import { FlatList } from 'react-native-gesture-handler';
+import { ScrollableWrapper } from 'react-native-reanimated-pager-view';
 
 import { useOptimizedFlatListConfig } from '../hooks/useFlatListOptimization';
 import { notificationStyles } from '../styles/notificationStyles';
@@ -84,13 +85,15 @@ export const NotificationPage: React.FC<NotificationPageProps> = ({
   }
 
   return (
-    <FlatList
-      data={flatListData}
-      renderItem={renderItem}
-      keyExtractor={keyExtractor}
-      style={styles.pageContainer}
-      {...flatListConfig}
-    />
+    <ScrollableWrapper orientation="vertical">
+      <FlatList
+        data={flatListData}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        style={styles.pageContainer}
+        {...flatListConfig}
+      />
+    </ScrollableWrapper>
   );
 };
 

@@ -22,6 +22,7 @@ import {
   PagerView,
   type PagerViewRef,
   type PageStyleInterpolator,
+  type ScrollPosition,
 } from 'react-native-reanimated-pager-view';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
@@ -74,10 +75,10 @@ const App = () => {
   );
 
   const onPageScroll = useCallback(
-    (e: { position: number; offset: number }) => {
+    (position: ScrollPosition) => {
       'worklet';
 
-      pagerScrollPosition.value = e.position + e.offset;
+      pagerScrollPosition.value = position;
     },
     [pagerScrollPosition],
   );

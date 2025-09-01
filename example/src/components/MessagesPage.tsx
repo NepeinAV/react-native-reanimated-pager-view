@@ -2,6 +2,8 @@ import React, { useMemo, useCallback } from 'react';
 
 import { FlatList } from 'react-native';
 
+import { ScrollableWrapper } from 'react-native-reanimated-pager-view';
+
 import { chatsData } from '../data/chats';
 import {
   useOptimizedFlatListConfig,
@@ -25,12 +27,14 @@ export const MessagesPage: React.FC<MessagesPageProps> = () => {
   );
 
   return (
-    <FlatList
-      style={styles.pageContainer}
-      data={chats}
-      renderItem={renderChat}
-      keyExtractor={keyExtractorById}
-      {...flatListConfig}
-    />
+    <ScrollableWrapper orientation="vertical">
+      <FlatList
+        style={styles.pageContainer}
+        data={chats}
+        renderItem={renderChat}
+        keyExtractor={keyExtractorById}
+        {...flatListConfig}
+      />
+    </ScrollableWrapper>
   );
 };

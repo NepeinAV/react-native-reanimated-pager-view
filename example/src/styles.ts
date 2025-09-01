@@ -39,7 +39,7 @@ export const styles = StyleSheet.create({
     backgroundColor: CONSTANTS.COLORS.BACKGROUND_PRIMARY,
   },
   bannersSection: {
-    paddingVertical: 20,
+    // paddingVertical: 20,
     marginBottom: 10,
   },
   sectionTitle: {
@@ -57,7 +57,6 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 15,
     paddingHorizontal: 20,
   },
   progressBarContainer: {
