@@ -1,8 +1,9 @@
 export { PagerView } from './PagerView';
 
 export { OnscreenPage } from './OnscreenPage';
+export { ScrollableWrapper } from './ScrollableWrapper';
 
-export { useIsOnscreenPage } from './context';
+export { useIsOnscreenPage } from './contexts/OnscreenPageContext';
 
 export {
   createBounceScrollOffsetInterpolator,

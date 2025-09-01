@@ -10,7 +10,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { OnscreenPageContext } from './context';
+import { OnscreenPageContext } from './contexts/OnscreenPageContext';
 import { useCustomClippingReceiver } from './hooks/useCustomClipping';
 import { PageWithInterpolation } from './PageWithInterpolation';
 import {

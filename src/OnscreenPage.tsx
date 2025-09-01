@@ -1,6 +1,6 @@
 import { type ReactNode, useMemo, useRef } from 'react';
 
-import { useIsOnscreenPage } from './context';
+import { useIsOnscreenPage } from './contexts/OnscreenPageContext';
 
 type Props = {
   once?: boolean;

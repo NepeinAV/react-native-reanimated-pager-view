@@ -6,8 +6,8 @@ import type { PanGesture } from 'react-native-gesture-handler';
 
 export type PagerStyleFn = (params: {
   pageSize: number;
-  scrollOffset: number;
-  interpolatedScrollOffset: number;
+  scrollPosition: number;
+  interpolatedScrollPosition: number;
 }) => ViewStyle;
 
 export type PagerViewProps = {
@@ -148,6 +148,13 @@ export type PagerViewProps = {
    */
   holdCurrentPageOnChildrenUpdate?: boolean;
 
+  /**
+   * Minimum distance along the main axis before starting to swipe.
+   *
+   * @default 10
+   */
+  activationDistance?: number;
+
   onPageSelected?: (page: number) => void;
   onPageScrollStateChanged?: (state: ScrollState) => void;
   onPageScroll?: (event: ScrollPosition) => void;
@@ -160,11 +167,11 @@ export type PageStyleInterpolatorParams = {
   pageOffset: number;
   pageIndex: number;
   pageSize: number;
-  scrollOffset: number;
+  scrollPosition: number;
 };
 
 export type ScrollOffsetInterpolatorParams = {
-  scrollOffset: number;
+  scrollPosition: number;
   orientation: Orientation;
   pageCount: number;
 };
@@ -185,10 +192,7 @@ export type PagerViewRef = {
 
 export type ScrollState = 'idle' | 'dragging' | 'settling';
 
-export type ScrollPosition = {
-  position: number;
-  offset: number;
-};
+export type ScrollPosition = number;
 
 export type OverscrollSide = 'left' | 'right' | 'top' | 'bottom';
 

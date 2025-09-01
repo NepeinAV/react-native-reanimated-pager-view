@@ -51,12 +51,15 @@ export const createBounceScrollOffsetInterpolator = (
   const isThresholdReachedCalled = makeMutable(false);
 
   return {
-    interpolator: ({ scrollOffset, orientation, pageCount }) => {
+    interpolator: ({ scrollPosition, orientation, pageCount }) => {
       'worklet';
 
       const isVertical = orientation === 'vertical';
 
-      const overscrollOffset = getOverscrollOffset(scrollOffset, pageCount - 1);
+      const overscrollOffset = getOverscrollOffset(
+        scrollPosition,
+        pageCount - 1,
+      );
 
       if (!triggerThresholdCallbackOnlyOnce && overscrollOffset === 0) {
         isThresholdReachedCalled.value = false;
@@ -69,12 +72,12 @@ export const createBounceScrollOffsetInterpolator = (
       ) {
         isThresholdReachedCalled.value = true;
 
-        const side = getOverscrollSide(scrollOffset, isVertical);
+        const side = getOverscrollSide(scrollPosition, isVertical);
 
         runOnJS(onThresholdReached)({ side });
       }
 
-      return scrollOffset - overscrollOffset * resistanceFactor;
+      return scrollPosition - overscrollOffset * resistanceFactor;
     },
     onPanStart: () => {
       'worklet';

@@ -33,7 +33,8 @@ https://github.com/user-attachments/assets/4125365c-1dee-4f81-9cc6-e94a1687511f
   - [Page Visibility Tracking](#page-visibility-tracking)
   - [Page Management](#page-management)
   - [Ref Methods](#ref-methods)
-- [👀 Page Visibility Tracking](#-page-visibility-tracking)
+- [� ScrollableWrapper Component](#-scrollablewrapper-component)
+- [�👀 Page Visibility Tracking](#-page-visibility-tracking)
 - [📱 Vertical Mode](#-vertical-mode)
 - [🎯 Advanced Examples](#-advanced-examples)
   - [Custom Page Animations](#custom-page-animations)
@@ -100,28 +101,9 @@ export default function App() {
 }
 ```
 
-### ⚠️ Important: Horizontal Scrolling Inside PagerView
+### ⚠️ Important: Nested Scrollable Components
 
-When using horizontal scrollable components (like FlatList, ScrollView) inside PagerView pages, you **must** use components from `react-native-gesture-handler` to avoid gesture conflicts:
-
-```tsx
-import { FlatList } from 'react-native-gesture-handler'; // ✅ Use this for horizontal lists
-// import { FlatList } from 'react-native'; // ❌ DON'T use this
-
-function MyPageWithHorizontalScroll() {
-  return (
-    <View style={{ flex: 1 }}>
-      <FlatList
-        data={items}
-        horizontal
-        renderItem={({ item }) => <ItemComponent item={item} />}
-      />
-    </View>
-  );
-}
-```
-
-This prevents gesture conflicts between the PagerView's horizontal pan gesture and the nested horizontal scroll gesture.
+When using scrollable components inside PagerView pages, you need to prevent gesture conflicts. The library provides a [`ScrollableWrapper`](#-scrollablewrapper-component) component that automatically handles this.
 
 ## 📚 API Documentation
 
@@ -155,6 +137,8 @@ The `pageStyleInterpolator` function receives:
 
 - `pageOffset`: number - The offset between current scroll position and page index (can be negative)
 - `pageIndex`: number - The page index that is being interpolated
+- `pageSize`: number - The size of each page (width for horizontal, height for vertical)
+- `scrollPosition`: number - The current scroll position as a floating point number
 
 And should return a `ViewStyle` object with transform/animation properties.
 
@@ -190,36 +174,45 @@ const bounceInterpolator = createBounceScrollOffsetInterpolator({
 The `style` prop can accept a function for dynamic styling based on scroll position:
 
 ```tsx
-const dynamicStyle = ({
-  scrollOffset,
-  interpolatedScrollOffset,
-  pageSize,
-}) => ({
-  backgroundColor: `rgba(0,0,0,${Math.abs(scrollOffset) * 0.1})`,
-  transform: [{ scale: 1 + Math.abs(interpolatedScrollOffset) * 0.05 }],
-});
+const rubberBandStyle: PagerStyleFn = ({ scrollPosition }) => {
+  'worklet';
 
-<PagerView style={dynamicStyle} />;
+  return {
+    transformOrigin: scrollPosition < 0 ? 'top' : 'bottom',
+    transform: [
+      {
+        scaleY: interpolate(
+          scrollPosition,
+          [-1, 0, pages.length - 1, pages.length],
+          [1.25, 1, 1, 1.25],
+        ),
+      },
+    ],
+  };
+};
+
+<PagerView style={rubberBandStyle} />;
 ```
 
 ### Callbacks
 
 **Note:** Only `onPageScroll` should be a worklet for optimal performance. All other callbacks are called via runOnJS.
 
-| Property                   | Type                             | Description                                                         |
-| -------------------------- | -------------------------------- | ------------------------------------------------------------------- |
-| `onPageSelected`           | `(page: number) => void`         | Called when a new page is selected                                  |
-| `onPageScroll`             | `({ position, offset }) => void` | Called during scrolling and page offset changes (should be worklet) |
-| `onPageScrollStateChanged` | `(state) => void`                | State change during scrolling                                       |
-| `onDragStart`              | `() => void`                     | Start of drag gesture                                               |
-| `onDragEnd`                | `() => void`                     | End of drag gesture                                                 |
-| `onInitialMeasure`         | `() => void`                     | Called after initial measurement of container dimensions            |
+| Property                   | Type                         | Description                                                              |
+| -------------------------- | ---------------------------- | ------------------------------------------------------------------------ |
+| `onPageSelected`           | `(page: number) => void`     | Called when a new page is selected                                       |
+| `onPageScroll`             | `(position: number) => void` | Called during scrolling with current scroll position (should be worklet) |
+| `onPageScrollStateChanged` | `(state) => void`            | State change during scrolling                                            |
+| `onDragStart`              | `() => void`                 | Start of drag gesture                                                    |
+| `onDragEnd`                | `() => void`                 | End of drag gesture                                                      |
+| `onInitialMeasure`         | `() => void`                 | Called after initial measurement of container dimensions                 |
 
 ### Gesture Customization
 
-| Property               | Type                            | Description                       |
-| ---------------------- | ------------------------------- | --------------------------------- |
-| `gestureConfiguration` | `(gesture: Gesture) => Gesture` | Function to customize pan gesture |
+| Property               | Type                            | Description                                      |
+| ---------------------- | ------------------------------- | ------------------------------------------------ |
+| `gestureConfiguration` | `(gesture: Gesture) => Gesture` | Function to customize pan gesture                |
+| `activationDistance`   | `number`                        | Minimum distance before activation (default: 10) |
 
 ### Performance
 
@@ -251,6 +244,85 @@ Enable tracking of which pages are currently visible on screen. Useful for analy
 | ------------------------- | ------------------------ | ---------------------------------- |
 | `setPage`                 | `(page: number) => void` | Navigate to page with animation    |
 | `setPageWithoutAnimation` | `(page: number) => void` | Navigate to page without animation |
+
+## 🔧 ScrollableWrapper Component
+
+The `ScrollableWrapper` component solves gesture conflicts when using scrollable components inside PagerView pages. It automatically detects the PagerView's orientation and configures gesture priorities to prevent conflicts.
+
+### When to use ScrollableWrapper
+
+Use `ScrollableWrapper` whenever you have scrollable content inside PagerView pages:
+
+- **Vertical scrolls** inside horizontal PagerView (FlatList, ScrollView, etc.)
+- **Horizontal scrolls** inside vertical PagerView (horizontal FlatList, carousel, etc.)
+- **Any scrollable component** that might conflict with PagerView gestures
+- **Smart gesture handoff** - provides Twitter/𝕏-like behavior where swiping to change pages smoothly interrupts internal scrolling **and** switches to PagerView gesture
+
+### Basic Usage
+
+```tsx
+import { ScrollableWrapper } from 'react-native-reanimated-pager-view';
+
+// For vertical scrolling content in horizontal PagerView
+function FeedPage() {
+  return (
+    <ScrollableWrapper orientation="vertical">
+      <FlatList
+        data={posts}
+        renderItem={({ item }) => <PostItem post={item} />}
+      />
+    </ScrollableWrapper>
+  );
+}
+
+// For horizontal scrolling content in vertical PagerView
+function HorizontalCarouselPage() {
+  return (
+    <ScrollableWrapper orientation="horizontal">
+      <FlatList
+        data={items}
+        horizontal
+        renderItem={({ item }) => <CarouselItem item={item} />}
+      />
+    </ScrollableWrapper>
+  );
+}
+```
+
+### Props
+
+| Property      | Type          | Default      | Description                           |
+| ------------- | ------------- | ------------ | ------------------------------------- |
+| `orientation` | `Orientation` | `'vertical'` | Orientation of the scrollable content |
+| `children`    | `ReactNode`   | -            | The scrollable component to wrap      |
+
+### Advanced Usage with Multiple Scrollables
+
+```tsx
+function ComplexPage() {
+  return (
+    <View style={{ flex: 1 }}>
+      {/* Vertical main content */}
+      <ScrollableWrapper orientation="vertical">
+        <ScrollView>
+          <Text>Main content that scrolls vertically</Text>
+
+          {/* Horizontal carousel within vertical scroll */}
+          <ScrollableWrapper orientation="horizontal">
+            <FlatList
+              data={carouselItems}
+              horizontal
+              renderItem={({ item }) => <CarouselItem item={item} />}
+            />
+          </ScrollableWrapper>
+
+          <Text>More vertical content...</Text>
+        </ScrollView>
+      </ScrollableWrapper>
+    </View>
+  );
+}
+```
 
 ## 👀 Page Visibility Tracking
 

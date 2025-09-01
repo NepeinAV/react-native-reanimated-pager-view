@@ -21,19 +21,14 @@ export const PageWithInterpolation = ({
   pageIndex,
   pageSize,
 }: Props) => {
-  const pageInterpolatorStyle = useAnimatedStyle(() => {
-    const { position, offset } = scrollPosition.value;
-
-    const scrollOffset = position + offset;
-    const pageOffset = pageIndex - scrollOffset;
-
-    return pageStyleInterpolator({
-      pageOffset,
-      scrollOffset,
+  const pageInterpolatorStyle = useAnimatedStyle(() =>
+    pageStyleInterpolator({
+      pageOffset: pageIndex - scrollPosition.value,
+      scrollPosition: scrollPosition.value,
       pageIndex,
       pageSize,
-    });
-  });
+    }),
+  );
 
   return children(pageInterpolatorStyle);
 };
