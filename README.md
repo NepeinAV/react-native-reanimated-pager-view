@@ -79,7 +79,7 @@ const pages = [
   { id: 'page3', color: '#45b7d1', title: 'Page 3' },
 ];
 
-// Optional: Add bounce effect with threshold callback
+// Optional: Add bounce effect
 const bounceInterpolator = createBounceScrollOffsetInterpolator();
 
 export default function App() {
@@ -247,7 +247,7 @@ Enable tracking of which pages are currently visible on screen. Useful for analy
 
 ## 🔧 ScrollableWrapper Component
 
-The `ScrollableWrapper` component solves gesture conflicts when using scrollable components inside PagerView pages. It automatically detects the PagerView's orientation and configures gesture priorities to prevent conflicts.
+The `ScrollableWrapper` component solves gesture conflicts when using scrollable components inside PagerView pages. It automatically detects the PagerView's orientation and configures gesture priorities to prevent conflicts. Also, it provides Twitter/𝕏-like behavior where swiping to change pages smoothly interrupts internal scrolling **and** switches to PagerView gesture (just wrap everything that can scroll 🪄).
 
 ### When to use ScrollableWrapper
 
@@ -256,7 +256,6 @@ Use `ScrollableWrapper` whenever you have scrollable content inside PagerView pa
 - **Vertical scrolls** inside horizontal PagerView (FlatList, ScrollView, etc.)
 - **Horizontal scrolls** inside vertical PagerView (horizontal FlatList, carousel, etc.)
 - **Any scrollable component** that might conflict with PagerView gestures
-- **Smart gesture handoff** - provides Twitter/𝕏-like behavior where swiping to change pages smoothly interrupts internal scrolling **and** switches to PagerView gesture
 
 ### Basic Usage
 
@@ -407,7 +406,7 @@ const AnalyticsPage = ({ pageId }) => {
 
 ### Alternative: useIsOnscreenPage Hook
 
-For simpler cases, you can use the `useIsOnscreenPage` hook:
+You can also use the `useIsOnscreenPage` hook:
 
 ```tsx
 import React, { useMemo } from 'react';
@@ -465,6 +464,9 @@ const pages = [
   { id: 'page4', color: '#96ceb4', title: 'Last Page!' },
 ];
 
+// Create bounce interpolator for vertical mode
+const bounceInterpolator = createBounceScrollOffsetInterpolator();
+
 const VerticalExample = () => {
   const children = useMemo(
     () =>
@@ -476,11 +478,8 @@ const VerticalExample = () => {
           <Text style={styles.title}>{page.title}</Text>
         </View>
       )),
-    [pages],
+    [],
   );
-
-  // Create bounce interpolator for vertical mode
-  const bounceInterpolator = createBounceScrollOffsetInterpolator();
 
   return (
     <PagerView
@@ -605,9 +604,8 @@ const GESTURE_PAGES = [
 ];
 
 const customGestureConfig = (gesture: Gesture) => {
-  return gesture
-    .activeOffsetX([-20, 20]) // Higher activation threshold
-    .failOffsetY([-10, 10]); // Lower Y sensitivity
+  // Reduce gesture area
+  return gesture.hitSlop(-10);
 };
 
 const CustomGesturePager = () => {
