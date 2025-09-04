@@ -17,8 +17,6 @@ import Animated, {
   Extrapolation,
 } from 'react-native-reanimated';
 import {
-  createBounceScrollOffsetInterpolator,
-  PagerView,
   type PagerViewRef,
   type PageStyleInterpolator,
   type ScrollPosition,
@@ -30,11 +28,11 @@ import { BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet';
 import { CONSTANTS } from '../constants';
 import { styles as appStyles } from '../styles';
 
+import { CustomPagerView } from './CustomPagerView';
 import { FeedPage } from './FeedPage';
 import { MessagesPage } from './MessagesPage';
 import { NavigationIcon } from './NavigationIcon';
 import { NotificationsBottomSheet } from './NotificationsBottomSheet';
-import { ProfilePage } from './ProfilePage';
 import { Shorts } from './Shorts';
 
 const AnimatedSafeArea = Animated.createAnimatedComponent(SafeAreaView);
@@ -50,8 +48,6 @@ const pageStyleInterpolator: PageStyleInterpolator = ({ pageOffset }) => {
   };
 };
 
-const scrollOffsetInterpolator = createBounceScrollOffsetInterpolator();
-
 export const MainScreen = () => {
   const { width: screenWidth } = useWindowDimensions();
 
@@ -65,7 +61,6 @@ export const MainScreen = () => {
       { id: 'feed', title: 'Home', icon: '🏠' },
       { id: 'messages', title: 'Messages', icon: '💬' },
       { id: 'vertical', title: 'Shorts', icon: '📺' },
-      { id: 'profile', title: 'Profile', icon: '👤' },
     ],
     [],
   );
@@ -130,9 +125,6 @@ export const MainScreen = () => {
       case 'vertical':
         return <Shorts />;
 
-      case 'profile':
-        return <ProfilePage />;
-
       default:
         return <View style={appStyles.pageContainer} />;
     }
@@ -161,17 +153,16 @@ export const MainScreen = () => {
             </TouchableOpacity>
           </Animated.View>
 
-          <PagerView
+          <CustomPagerView
             ref={ref}
             onPageScroll={onPageScroll}
-            scrollEnabled={true}
             removeClippedPages={false}
             pageStyleInterpolator={pageStyleInterpolator}
-            scrollOffsetInterpolator={scrollOffsetInterpolator}
+            scrollEnabled
             lazy
           >
             {memoizedPages}
-          </PagerView>
+          </CustomPagerView>
 
           <Animated.View
             style={[appStyles.navigation, backgroundAnimatedStyle]}

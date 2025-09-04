@@ -16,7 +16,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import {
   createBounceScrollOffsetInterpolator,
-  PagerView,
   ScrollableWrapper,
 } from 'react-native-reanimated-pager-view';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -31,6 +30,7 @@ import {
 import { CONSTANTS } from '../constants';
 
 import { Avatar } from './Avatar';
+import { CustomPagerView } from './CustomPagerView';
 
 import type { Post } from '../types';
 
@@ -170,7 +170,7 @@ export const PostDetailScreen: React.FC = () => {
         <View style={styles.headerSpacer} />
       </View>
 
-      <PagerView
+      <CustomPagerView
         style={styles.pager}
         initialPage={initialIndex}
         failActivationWhenExceedingStartEdge
@@ -180,7 +180,7 @@ export const PostDetailScreen: React.FC = () => {
         lazy
       >
         {children}
-      </PagerView>
+      </CustomPagerView>
 
       <PageIndicator
         totalPages={allPosts.length}

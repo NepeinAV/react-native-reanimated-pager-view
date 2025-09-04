@@ -10,10 +10,11 @@ import {
 
 import { interpolate } from 'react-native-reanimated';
 import {
-  PagerView,
   type PagerStyleFn,
   type PagerViewRef,
 } from 'react-native-reanimated-pager-view';
+
+import { CustomPagerView } from './CustomPagerView';
 
 const videos = [
   {
@@ -129,10 +130,10 @@ const Shorts: React.FC = () => {
         translucent
       />
 
-      <PagerView
+      <CustomPagerView
         ref={ref}
         orientation="vertical"
-        pageMargin={0}
+        scrollOffsetInterpolator={undefined}
         style={rubberBandStyle}
       >
         {videos.map((video, index) => (
@@ -196,7 +197,7 @@ const Shorts: React.FC = () => {
             </View>
           </View>
         ))}
-      </PagerView>
+      </CustomPagerView>
     </View>
   );
 };

@@ -9,9 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { interpolate } from 'react-native-reanimated';
 import {
-  PagerView,
   ScrollableWrapper,
-  createBounceScrollOffsetInterpolator,
   getOverscrollOffset,
   type PageStyleInterpolator,
   type ScrollPosition,
@@ -27,6 +25,7 @@ import { styles } from '../styles';
 import { postStyles } from '../styles/postStyles';
 
 import { BannerItem } from './BannerItem';
+import { CustomPagerView } from './CustomPagerView';
 import { PostItem } from './PostItem';
 
 import type { Banner, Post } from '../types';
@@ -95,8 +94,6 @@ export const cardStackPageInterpolator: PageStyleInterpolator = ({
   };
 };
 
-const bounceInterpolator = createBounceScrollOffsetInterpolator();
-
 const categories = [
   '🔥 Trending',
   '⭐ Favorites',
@@ -121,10 +118,8 @@ const BannersHeader: React.FC<{ banners: Banner[] }> = ({ banners }) => {
   return (
     <View style={styles.bannersSection}>
       <Text style={styles.sectionTitle}>Featured</Text>
-      <PagerView
+      <CustomPagerView
         pageStyleInterpolator={cardStackPageInterpolator}
-        scrollOffsetInterpolator={bounceInterpolator}
-        orientation="horizontal"
         onPageScroll={onPageScroll}
       >
         {banners.map((banner) => (
@@ -132,7 +127,7 @@ const BannersHeader: React.FC<{ banners: Banner[] }> = ({ banners }) => {
             <BannerItem banner={banner} />
           </View>
         ))}
-      </PagerView>
+      </CustomPagerView>
       <PagerProgressBar
         scrollOffset={scrollOffset}
         totalPages={banners.length}

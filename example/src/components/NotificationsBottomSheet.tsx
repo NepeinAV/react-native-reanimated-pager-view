@@ -15,7 +15,6 @@ import Animated, {
   Extrapolation,
 } from 'react-native-reanimated';
 import {
-  PagerView,
   type PagerViewRef,
   type ScrollPosition,
 } from 'react-native-reanimated-pager-view';
@@ -24,6 +23,7 @@ import { CONSTANTS } from '../constants';
 import { NOTIFICATION_TABS } from '../constants/notifications';
 import { notificationsData } from '../data/notifications';
 
+import { CustomPagerView } from './CustomPagerView';
 import { NotificationPage } from './NotificationPage';
 
 import type { Notification } from '../types';
@@ -137,13 +137,13 @@ export const NotificationsBottomSheet = () => {
         <Animated.View style={[styles.tabBackground, tabBackgroundStyle]} />
         {memoizedTabs}
       </View>
-      <PagerView
+      <CustomPagerView
         ref={pagerRef}
         onPageSelected={handlePageSelected}
         onPageScroll={onPageScroll}
       >
         {memoizedPages}
-      </PagerView>
+      </CustomPagerView>
     </View>
   );
 };
