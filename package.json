@@ -1,6 +1,6 @@
 {
   "name": "react-native-reanimated-pager-view",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "High-performance PagerView component for React Native, built on react-native-reanimated v3",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
