@@ -17,7 +17,7 @@ High-performance PagerView component for React Native, built on `react-native-re
 - 🔄 **Dynamic management** - add/remove pages with automatic positioning
 - 📱 **Vertical Mode** - support for vertical scrolling
 
-https://github.com/user-attachments/assets/4125365c-1dee-4f81-9cc6-e94a1687511f
+https://github.com/user-attachments/assets/121e4339-e74d-4946-8d73-4760cc221d34
 
 ## 🗂️ Table of Contents
 
