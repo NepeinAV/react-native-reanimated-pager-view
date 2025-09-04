@@ -68,6 +68,9 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       scrollOffsetInterpolator,
       orientation = 'horizontal',
       activationDistance: gestureActivationDistance = 10,
+      failActivationWhenExceedingStartEdge,
+      failActivationWhenExceedingEndEdge,
+      hitSlop,
     },
     ref,
   ) => {
@@ -362,22 +365,41 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
           // Calculate displacement from the initial touch point
           const deltaX = touch.absoluteX - initialTouchPositionX.value;
           const deltaY = touch.absoluteY - initialTouchPositionY.value;
-          const absoluteDeltaX = Math.abs(deltaX);
-          const absoluteDeltaY = Math.abs(deltaY);
 
           // Determine main and cross axis values based on orientation
-          const mainAxisDelta = isVertical ? absoluteDeltaY : absoluteDeltaX;
-          const crossAxisDelta = isVertical ? absoluteDeltaX : absoluteDeltaY;
+          const mainAxisDelta = isVertical ? deltaY : deltaX;
+          const crossAxisDelta = isVertical ? deltaX : deltaY;
+          const mainAxisAbsoluteDelta = Math.abs(mainAxisDelta);
+          const crossAxisAbsoluteDelta = Math.abs(crossAxisDelta);
+
+          const shouldFailForStartEdge =
+            failActivationWhenExceedingStartEdge &&
+            currentPage.value === 0 &&
+            mainAxisDelta > 0 &&
+            mainAxisAbsoluteDelta >= gestureActivationDistance;
+
+          const shouldFailForEndEdge =
+            failActivationWhenExceedingEndEdge &&
+            currentPage.value === pageCount - 1 &&
+            mainAxisDelta < 0 &&
+            mainAxisAbsoluteDelta >= gestureActivationDistance;
+
+          if (shouldFailForStartEdge || shouldFailForEndEdge) {
+            // Fail the pager gesture to allow parent gesture to activate
+            state.fail();
+
+            return;
+          }
 
           // Calculate ratio of main axis to cross axis movement
           const mainToCrossRatio =
-            crossAxisDelta === 0
+            crossAxisAbsoluteDelta === 0
               ? Number.POSITIVE_INFINITY
-              : mainAxisDelta / crossAxisDelta;
+              : mainAxisAbsoluteDelta / crossAxisAbsoluteDelta;
 
           // Activate gesture if main axis movement is sufficient and dominant
           if (
-            mainAxisDelta >= gestureActivationDistance &&
+            mainAxisAbsoluteDelta >= gestureActivationDistance &&
             mainToCrossRatio >= GESTURE_DIRECTION_RATIO
           ) {
             isGestureManuallyActivated.value = true;
@@ -389,12 +411,12 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
 
           // Fail gesture if cross axis movement dominates
           const crossToMainRatio =
-            mainAxisDelta === 0
+            mainAxisAbsoluteDelta === 0
               ? Number.POSITIVE_INFINITY
-              : crossAxisDelta / mainAxisDelta;
+              : crossAxisAbsoluteDelta / mainAxisAbsoluteDelta;
 
           if (
-            crossAxisDelta >= gestureActivationDistance &&
+            crossAxisAbsoluteDelta >= gestureActivationDistance &&
             crossToMainRatio >= GESTURE_DIRECTION_RATIO
           ) {
             state.fail();
@@ -451,7 +473,8 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
           }
 
           scrollToPage(nextPage, true);
-        });
+        })
+        .hitSlop(hitSlop);
 
       if (gestureConfiguration) {
         gesture = gestureConfiguration(gesture);
@@ -459,24 +482,28 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
 
       return gesture;
     }, [
-      currentPage,
-      gestureActivationDistance,
+      scrollEnabled,
+      hitSlop,
       gestureConfiguration,
       initialTouchPositionX,
       initialTouchPositionY,
       isGestureManuallyActivated,
-      isLayoutMeasured,
       isVertical,
-      pageSize,
+      failActivationWhenExceedingStartEdge,
+      currentPage,
+      gestureActivationDistance,
+      failActivationWhenExceedingEndEdge,
+      pageCount,
+      scrollOffsetInterpolator,
+      panOffset,
+      setRemoveClippedPages,
       panGestureStartOffset,
       panGestureStartPage,
-      panOffset,
-      panVelocityThreshold,
-      scrollEnabled,
-      scrollOffsetInterpolator,
       scrollState,
+      isLayoutMeasured,
+      pageSize,
+      panVelocityThreshold,
       scrollToPage,
-      setRemoveClippedPages,
     ]);
 
     const pageAnimatedStyle = useAnimatedStyle(() => ({

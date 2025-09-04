@@ -155,6 +155,40 @@ export type PagerViewProps = {
    */
   activationDistance?: number;
 
+  /**
+   * When true, fails pager gesture activation when user tries to swipe beyond the left/top edge.
+   * This allows parent gesture handlers to take over when user swipes past the start boundary.
+   *
+   * Useful for navigation gestures like React Navigation's swipe-back.
+   *
+   * Activation conditions:
+   * - For horizontal orientation: fails when on first page AND swiping rightward (left edge → right)
+   * - For vertical orientation: fails when on first page AND swiping upward (top edge → down)
+   *
+   * @default false
+   */
+  failActivationWhenExceedingStartEdge?: boolean;
+
+  /**
+   * When true, fails pager gesture activation when user tries to swipe beyond the right/bottom edge.
+   * This allows parent gesture handlers to take over when user swipes past the end boundary.
+   *
+   * Activation conditions:
+   * - For horizontal orientation: fails when on last page AND swiping leftward (right edge → left)
+   * - For vertical orientation: fails when on last page AND swiping downward (bottom edge → up)
+   *
+   * @default false
+   */
+  failActivationWhenExceedingEndEdge?: boolean;
+
+  /**
+   * This parameter enables control over what part of the connected view area can be used to begin recognizing the gesture.
+   * When a negative number is provided the bounds of the view will reduce the area by the given number of points in each of the sides evenly.
+   *
+   * @see https://docs.swmansion.com/react-native-gesture-handler/docs/gestures/pan-gesture#hitslopsettings
+   */
+  hitSlop?: HitSlop;
+
   onPageSelected?: (page: number) => void;
   onPageScrollStateChanged?: (state: ScrollState) => void;
   onPageScroll?: (event: ScrollPosition) => void;
@@ -162,6 +196,21 @@ export type PagerViewProps = {
   onDragEnd?: () => void;
   onInitialMeasure?: () => void;
 };
+
+export type HitSlop =
+  | number
+  | null
+  | undefined
+  | Partial<
+      Record<
+        'left' | 'right' | 'top' | 'bottom' | 'vertical' | 'horizontal',
+        number
+      >
+    >
+  | Record<'width' | 'left', number>
+  | Record<'width' | 'right', number>
+  | Record<'height' | 'top', number>
+  | Record<'height' | 'bottom', number>;
 
 export type PageStyleInterpolatorParams = {
   pageOffset: number;

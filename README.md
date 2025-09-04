@@ -33,8 +33,8 @@ https://github.com/user-attachments/assets/4125365c-1dee-4f81-9cc6-e94a1687511f
   - [Page Visibility Tracking](#page-visibility-tracking)
   - [Page Management](#page-management)
   - [Ref Methods](#ref-methods)
-- [� ScrollableWrapper Component](#-scrollablewrapper-component)
-- [�👀 Page Visibility Tracking](#-page-visibility-tracking)
+- [🔧 ScrollableWrapper Component](#-scrollablewrapper-component)
+- [👀 Page Visibility Tracking](#-page-visibility-tracking)
 - [📱 Vertical Mode](#-vertical-mode)
 - [🎯 Advanced Examples](#-advanced-examples)
   - [Custom Page Animations](#custom-page-animations)
@@ -209,10 +209,13 @@ const rubberBandStyle: PagerStyleFn = ({ scrollPosition }) => {
 
 ### Gesture Customization
 
-| Property               | Type                            | Description                                      |
-| ---------------------- | ------------------------------- | ------------------------------------------------ |
-| `gestureConfiguration` | `(gesture: Gesture) => Gesture` | Function to customize pan gesture                |
-| `activationDistance`   | `number`                        | Minimum distance before activation (default: 10) |
+| Property                               | Type                            | Description                                                                                                                                                                    |
+| -------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `gestureConfiguration`                 | `(gesture: Gesture) => Gesture` | Function to customize pan gesture                                                                                                                                              |
+| `activationDistance`                   | `number`                        | Minimum distance before activation (default: 10)                                                                                                                               |
+| `failActivationWhenExceedingStartEdge` | `boolean`                       | Fail gesture activation when swiping beyond **start** edge. For example, this is useful for resolving conflicts with fullscreen swipe-back navigation gesture (default: false) |
+| `failActivationWhenExceedingEndEdge`   | `boolean`                       | Fail gesture activation when swiping beyond **end** edge. Allows parent gestures to handle (default: false)                                                                    |
+| `hitSlop`                              | `HitSlop`                       | Define touchable area for gesture recognition                                                                                                                                  |
 
 ### Performance
 
@@ -629,55 +632,50 @@ const CustomGesturePager = () => {
 
 ## 🔧 React Navigation Integration
 
-### Solving iOS swipe back issue
+When using swipe-back navigation gesture, PagerView can interfere by capturing swipes from the screen edge. These props solve the conflict:
 
-When using with React Navigation on iOS, gesture conflict may occur when PagerView gesture are activating before the navigation gesture. Solution is to require the navigation gesture to fail before activation of PagerView gesture:
+- Use `failActivationWhenExceedingStartEdge={true}` when you want to allow fullscreen swipe-back gesture from **first** page (you should enable fullscreen swipe-back gesture in your navigation configuration too).
+- Use `hitSlop` to add area on the left edge of PagerView that would allow swipe-back gesture to be recognized. You probably want this value to be equal to the value of React Navigation's `gestureResponseDistance` prop.
 
 ```tsx
 import React, { useMemo } from 'react';
-import { Platform } from 'react-native';
-import { useGestureHandlerRef } from '@react-navigation/stack';
+import { View, Text } from 'react-native';
+import { PagerView } from 'react-native-reanimated-pager-view';
 
-function MyPagerScreen() {
-  const navigationGestureRef = useGestureHandlerRef();
+const pages = [
+  { id: 'page1', color: '#ff6b6b', title: 'Page 1' },
+  { id: 'page2', color: '#4ecdc4', title: 'Page 2' },
+  { id: 'page3', color: '#45b7d1', title: 'Page 3' },
+];
 
-  const pages = useMemo(
-    () => [
-      { id: 'page1', title: 'Page 1' },
-      { id: 'page2', title: 'Page 2' },
-      { id: 'page3', title: 'Page 3' },
-    ],
-    [],
-  );
+// Add 50px of non-swipeable area on the left edge
+const pagerViewSwipeBackArea = { left: -50 };
 
-  const customGestureConfig = useCallback(
-    (gesture: Gesture) => {
-      if (Platform.OS === 'ios' && navigationGestureRef) {
-        return gesture.requireExternalGestureToFail(navigationGestureRef);
-      }
-
-      return gesture;
-    },
-    [navigationGestureRef],
-  );
-
+export default function ScreenInStack() {
   const children = useMemo(
     () =>
       pages.map((page) => (
-        <View key={page.id}>
+        <View key={page.id} style={{ flex: 1, backgroundColor: page.color }}>
           <Text>{page.title}</Text>
         </View>
       )),
-    [pages],
+    [],
   );
 
   return (
-    <PagerView gestureConfiguration={customGestureConfig} scrollEnabled={true}>
+    <PagerView
+      failActivationWhenExceedingStartEdge
+      hitSlop={pagerViewSwipeBackArea}
+    >
       {children}
     </PagerView>
   );
 }
 ```
+
+That's it! These two props ensure your PagerView works seamlessly with navigation swipe-back gesture.
+
+> You can use the same approach for modals with vertical swipes too! 🔥
 
 ## ⚡ Performance Optimization
 
