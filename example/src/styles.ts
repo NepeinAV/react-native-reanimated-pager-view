@@ -8,7 +8,6 @@ export const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    backgroundColor: CONSTANTS.COLORS.BACKGROUND_SECONDARY,
     paddingVertical: CONSTANTS.SPACING.SMALL,
   },
   safeAreaContent: {
@@ -21,7 +20,6 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingBottom: 15,
-    backgroundColor: '#2C2C2E',
     borderBottomWidth: 0.33,
     borderBottomColor: 'rgba(84, 84, 88, 0.6)',
   },
@@ -39,7 +37,6 @@ export const styles = StyleSheet.create({
     backgroundColor: CONSTANTS.COLORS.BACKGROUND_PRIMARY,
   },
   bannersSection: {
-    // paddingVertical: 20,
     marginBottom: 10,
   },
   sectionTitle: {
@@ -75,7 +72,6 @@ export const styles = StyleSheet.create({
 
   navigation: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(44, 44, 46, 0.95)',
     borderTopWidth: 0.33,
     borderTopColor: 'rgba(84, 84, 88, 0.6)',
     position: 'relative',

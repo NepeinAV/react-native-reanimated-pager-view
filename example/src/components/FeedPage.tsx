@@ -169,7 +169,9 @@ export const FeedPage: React.FC = () => {
   const banners = useMemo(() => bannersData, []);
   const flatListConfig = useOptimizedFlatListConfig();
 
-  const renderPost = ({ item }: { item: Post }) => <PostItem post={item} />;
+  const renderPost = ({ item }: { item: Post }) => (
+    <PostItem post={item} allPosts={posts} />
+  );
 
   return (
     <ScrollableWrapper orientation="vertical">
