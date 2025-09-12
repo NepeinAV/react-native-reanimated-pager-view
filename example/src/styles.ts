@@ -46,30 +46,6 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 15,
   },
-  bannerPage: {
-    flex: 1,
-    marginHorizontal: CONSTANTS.SPACING.MEDIUM * 2,
-  },
-  pagerIndicator: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  progressBarContainer: {
-    height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 2,
-    overflow: 'hidden',
-    flex: 1,
-    maxWidth: 200,
-  },
-  progressBar: {
-    height: '100%',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 2,
-  },
-
   navigation: {
     flexDirection: 'row',
     borderTopWidth: 0.33,

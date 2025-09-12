@@ -27,8 +27,8 @@ export const BannerItem: React.FC<BannerItemProps> = ({ banner }) => {
 const styles = StyleSheet.create({
   bannerContainer: {
     width: '100%',
-    height: 120,
-    borderRadius: CONSTANTS.BORDER_RADIUS.MEDIUM,
+    height: 100,
+    borderRadius: CONSTANTS.BORDER_RADIUS.EXTRA_LARGE,
     marginRight: CONSTANTS.SPACING.LARGE,
     flexDirection: 'row',
     alignItems: 'center',
