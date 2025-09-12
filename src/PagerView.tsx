@@ -11,7 +11,11 @@ import {
 
 import { Platform, StyleSheet, View } from 'react-native';
 
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import {
+  Gesture,
+  GestureDetector,
+  type PanGesture,
+} from 'react-native-gesture-handler';
 import Animated, {
   cancelAnimation,
   clamp,
@@ -25,12 +29,14 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { PagerContext } from './contexts/PagerContext';
+import { useScrollableWrapper } from './contexts/ScrollableWrapperContext';
 import { useCustomClippingProvider } from './hooks/useCustomClipping';
 import { useExecuteEffectOnce } from './hooks/useExecuteEffectOnce';
 import { usePagerLayout } from './hooks/usePagerLayout';
 import { usePrevious } from './hooks/usePrevious';
 import { PageContainer } from './PageContainer';
 import {
+  type ExternalGesture,
   type PagerViewProps,
   type PagerViewRef,
   type ScrollState,
@@ -39,6 +45,8 @@ import { getChildKey, getPageOffset, isArrayEqual } from './utils';
 
 const NEXT_PAGE_VISIBLE_PART_THRESHOLD = 0.5;
 const GESTURE_DIRECTION_RATIO = 0.5; // 90 deg
+
+const defaultBlocksExternalGesture: ExternalGesture[] = [];
 
 const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
   (
@@ -71,9 +79,13 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       failActivationWhenExceedingStartEdge,
       failActivationWhenExceedingEndEdge,
       hitSlop,
+      blockParentScrollableWrapperActivation,
+      blocksExternalGesture = defaultBlocksExternalGesture,
     },
     ref,
   ) => {
+    const parentScrollableWrapper = useScrollableWrapper();
+
     const isVertical = orientation === 'vertical';
     const isProvidedStyleFunction = typeof style === 'function';
 
@@ -335,6 +347,23 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       },
     );
 
+    const applyBlocksExternalGesture = useCallback(
+      (gesture: PanGesture) => {
+        const gestures: ExternalGesture[] = [];
+
+        if (blockParentScrollableWrapperActivation && parentScrollableWrapper) {
+          gestures.push(parentScrollableWrapper.gesture);
+        }
+
+        gesture.blocksExternalGesture(...gestures, ...blocksExternalGesture);
+      },
+      [
+        blockParentScrollableWrapperActivation,
+        blocksExternalGesture,
+        parentScrollableWrapper,
+      ],
+    );
+
     let panGesture = useMemo(() => {
       let gesture = Gesture.Pan()
         .enabled(scrollEnabled)
@@ -476,6 +505,8 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
         })
         .hitSlop(hitSlop);
 
+      applyBlocksExternalGesture(gesture);
+
       if (gestureConfiguration) {
         gesture = gestureConfiguration(gesture);
       }
@@ -484,6 +515,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
     }, [
       scrollEnabled,
       hitSlop,
+      applyBlocksExternalGesture,
       gestureConfiguration,
       initialTouchPositionX,
       initialTouchPositionY,

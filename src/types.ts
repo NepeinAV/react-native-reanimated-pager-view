@@ -4,6 +4,8 @@ import { type ViewStyle } from 'react-native';
 
 import type { PanGesture } from 'react-native-gesture-handler';
 
+import { type GestureRef } from 'react-native-gesture-handler/lib/typescript/handlers/gestures/gesture';
+
 export type PagerStyleFn = (params: {
   pageSize: number;
   scrollPosition: number;
@@ -189,6 +191,24 @@ export type PagerViewProps = {
    */
   hitSlop?: HitSlop;
 
+  /**
+   * When true, the pager's internal pan gesture will actively block activation of the
+   * nearest parent `ScrollableWrapper` gesture (if such wrapper exists).
+   *
+   * Use when you want PagerView to capture swipes even while the parent scrollable is still decelerating (momentum scrolling).
+   *
+   * @platform iOS
+   * @default false
+   */
+  blockParentScrollableWrapperActivation?: boolean;
+
+  /**
+   * Works similarily to `requireExternalGestureToFail` but the direction of the relation is reversed - instead of being one-to-many relation, it's many-to-one.
+   *
+   * @see https://docs.swmansion.com/react-native-gesture-handler/docs/fundamentals/gesture-composition/#blocksexternalgesture
+   */
+  blocksExternalGesture?: ExternalGesture[];
+
   onPageSelected?: (page: number) => void;
   onPageScrollStateChanged?: (state: ScrollState) => void;
   onPageScroll?: (event: ScrollPosition) => void;
@@ -196,6 +216,8 @@ export type PagerViewProps = {
   onDragEnd?: () => void;
   onInitialMeasure?: () => void;
 };
+
+export type ExternalGesture = Exclude<GestureRef, number>;
 
 export type HitSlop =
   | number

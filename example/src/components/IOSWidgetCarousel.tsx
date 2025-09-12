@@ -133,7 +133,10 @@ export const IOSWidgetCarousel = () => {
   });
 
   return (
-    <CustomPagerView pageStyleInterpolator={iosWidgetCarouselPageInterpolator}>
+    <CustomPagerView
+      pageStyleInterpolator={iosWidgetCarouselPageInterpolator}
+      blockParentScrollableWrapperActivation
+    >
       {widgets.map((item, index) => (
         <Widget
           key={index}

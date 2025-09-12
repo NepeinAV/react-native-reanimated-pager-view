@@ -3,6 +3,7 @@ import { useMemo, type PropsWithChildren } from 'react';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import { usePager } from './contexts/PagerContext';
+import { ScrollableWrapperContext } from './contexts/ScrollableWrapperContext';
 
 import type { Orientation } from './types';
 
@@ -26,13 +27,22 @@ export const ScrollableWrapper = ({
     [],
   );
 
-  if (!pagerView) {
-    return children;
-  }
+  const contextValue = useMemo(
+    () => ({ gesture, orientation }),
+    [gesture, orientation],
+  );
 
-  if (pagerView.orientation !== orientation && pagerView.panGesture) {
+  if (pagerView && pagerView.orientation !== orientation) {
     gesture.requireExternalGestureToFail(pagerView.panGesture);
   }
 
-  return <GestureDetector gesture={gesture}>{children}</GestureDetector>;
+  return (
+    <ScrollableWrapperContext.Provider value={contextValue}>
+      {pagerView ? (
+        <GestureDetector gesture={gesture}>{children}</GestureDetector>
+      ) : (
+        children
+      )}
+    </ScrollableWrapperContext.Provider>
+  );
 };

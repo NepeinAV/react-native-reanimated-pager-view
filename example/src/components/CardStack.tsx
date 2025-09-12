@@ -70,6 +70,7 @@ export const CardStack = () => {
         pageStyleInterpolator={cardStackPageInterpolator}
         onPageScroll={onPageScroll}
         removeClippedPages={false}
+        blockParentScrollableWrapperActivation
       >
         {bannersData.map((banner) => (
           <View key={banner.id} style={styles.bannerPage}>
