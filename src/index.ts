@@ -22,6 +22,7 @@ export type {
   ScrollOffsetInterpolatorParams,
   OverscrollSide,
   PagerStyleFn,
+  ScrollToPageSpringConfig,
 } from './types';
 
 export { getOverscrollOffset } from './utils';

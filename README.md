@@ -120,12 +120,13 @@ When using scrollable components inside PagerView pages, you need to prevent ges
 
 ### Animation Customization
 
-| Property                   | Type                       | Default | Description                                                                                             |
-| -------------------------- | -------------------------- | ------- | ------------------------------------------------------------------------------------------------------- |
-| `pageStyleInterpolator`    | `PageStyleInterpolator`    | -       | Custom function for animating pages based on scroll position (must be a worklet)                        |
-| `scrollOffsetInterpolator` | `ScrollOffsetInterpolator` | -       | Custom scroll behavior interpolator                                                                     |
-| `panVelocityThreshold`     | `number`                   | `500`   | Minimum velocity for page switching. Note: page will switch if scrolled past 50% regardless of velocity |
-| `pageActivationThreshold`  | `number`                   | `0.8`   | Visibility percentage for page activation                                                               |
+| Property                   | Type                       | Default | Description                                                                                                      |
+| -------------------------- | -------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------- |
+| `pageStyleInterpolator`    | `PageStyleInterpolator`    | -       | Custom function for animating pages based on scroll position (must be a worklet)                                 |
+| `scrollOffsetInterpolator` | `ScrollOffsetInterpolator` | -       | Custom scroll behavior interpolator                                                                              |
+| `scrollToPageSpringConfig` | `ScrollToPageSpringConfig` | -       | Configure spring parameters used when scrolling to the target page after a drag or `setPage` (must be a worklet) |
+| `panVelocityThreshold`     | `number`                   | `500`   | Minimum velocity for page switching. Note: page will switch if scrolled past 50% regardless of velocity          |
+| `pageActivationThreshold`  | `number`                   | `0.8`   | Visibility percentage for page activation                                                                        |
 
 ### Page Animations
 

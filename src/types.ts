@@ -3,6 +3,7 @@ import { type ReactNode } from 'react';
 import { type ViewStyle } from 'react-native';
 
 import type { PanGesture } from 'react-native-gesture-handler';
+import { type WithSpringConfig } from 'react-native-reanimated';
 
 import { type GestureRef } from 'react-native-gesture-handler/lib/typescript/handlers/gestures/gesture';
 
@@ -209,6 +210,18 @@ export type PagerViewProps = {
    */
   blocksExternalGesture?: ExternalGesture[];
 
+  /**
+   * Allows customizing the animation that is used when pager scrolls to a target page
+   * after a drag or when calling `setPage`.
+   *
+   * @default
+   * {
+   *    damping: 100,
+   *    mass: isOverscroll ? 0.5 : 0.15,
+   * }
+   */
+  scrollToPageSpringConfig?: ScrollToPageSpringConfig;
+
   onPageSelected?: (page: number) => void;
   onPageScrollStateChanged?: (state: ScrollState) => void;
   onPageScroll?: (event: ScrollPosition) => void;
@@ -260,6 +273,11 @@ export type PagerViewRef = {
   setPage: (page: number) => void;
   setPageWithoutAnimation: (page: number) => void;
 };
+
+export type ScrollToPageSpringConfig = (params: {
+  isOverscroll: boolean;
+  page: number;
+}) => WithSpringConfig;
 
 export type ScrollState = 'idle' | 'dragging' | 'settling';
 

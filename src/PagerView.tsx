@@ -40,6 +40,7 @@ import {
   type PagerViewProps,
   type PagerViewRef,
   type ScrollState,
+  type ScrollToPageSpringConfig,
 } from './types';
 import { getChildKey, getPageOffset, isArrayEqual } from './utils';
 
@@ -47,6 +48,17 @@ const NEXT_PAGE_VISIBLE_PART_THRESHOLD = 0.5;
 const GESTURE_DIRECTION_RATIO = 0.5; // 90 deg
 
 const defaultBlocksExternalGesture: ExternalGesture[] = [];
+
+const defaultScrollToPageSpringConfig: ScrollToPageSpringConfig = ({
+  isOverscroll,
+}) => {
+  'worklet';
+
+  return {
+    damping: 100,
+    mass: isOverscroll ? 0.5 : 0.15,
+  };
+};
 
 const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
   (
@@ -81,6 +93,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       hitSlop,
       blockParentScrollableWrapperActivation,
       blocksExternalGesture = defaultBlocksExternalGesture,
+      scrollToPageSpringConfig = defaultScrollToPageSpringConfig,
     },
     ref,
   ) => {
@@ -217,20 +230,16 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
           return;
         }
 
-        const isInRange = page >= 0 && page < pageCount;
+        const clampedPage = clamp(page, 0, pageCount - 1);
 
-        const pageOffset = getPageOffset(
-          clamp(page, 0, pageCount - 1),
-          pageSize,
-        );
+        const isOverscroll = page < 0 || page >= pageCount;
+
+        const pageOffset = getPageOffset(clampedPage, pageSize);
 
         if (animated) {
           panOffset.value = withSpring(
             pageOffset,
-            {
-              damping: 100,
-              mass: isInRange ? 0.15 : 0.5,
-            },
+            scrollToPageSpringConfig({ isOverscroll, page: clampedPage }),
             () => {
               setRemoveClippedPages(true);
             },
@@ -241,7 +250,14 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
           setRemoveClippedPages(true);
         }
       },
-      [isLayoutMeasured, pageCount, pageSize, panOffset, setRemoveClippedPages],
+      [
+        isLayoutMeasured,
+        pageCount,
+        pageSize,
+        panOffset,
+        setRemoveClippedPages,
+        scrollToPageSpringConfig,
+      ],
     );
 
     const imperativeScrollToPage = useCallback(

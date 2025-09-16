@@ -10,7 +10,10 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
-import { type PageStyleInterpolator } from 'react-native-reanimated-pager-view';
+import {
+  type PageStyleInterpolator,
+  type ScrollToPageSpringConfig,
+} from 'react-native-reanimated-pager-view';
 
 import { CustomPagerView } from './CustomPagerView';
 
@@ -108,6 +111,15 @@ const Widget = ({
   );
 };
 
+const scrollToPageSpringConfig: ScrollToPageSpringConfig = () => {
+  'worklet';
+
+  return {
+    damping: 100,
+    mass: 0.5,
+  };
+};
+
 export const IOSWidgetCarousel = () => {
   const widgetRotation = useSharedValue(0);
 
@@ -136,6 +148,7 @@ export const IOSWidgetCarousel = () => {
     <CustomPagerView
       pageStyleInterpolator={iosWidgetCarouselPageInterpolator}
       blockParentScrollableWrapperActivation
+      scrollToPageSpringConfig={scrollToPageSpringConfig}
     >
       {widgets.map((item, index) => (
         <Widget
