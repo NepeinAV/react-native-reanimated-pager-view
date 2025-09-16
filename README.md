@@ -125,25 +125,6 @@ When using scrollable components inside PagerView pages, you need to prevent ges
 | `pageStyleInterpolator`    | `PageStyleInterpolator`    | -       | Custom function for animating pages based on scroll position (must be a worklet)                                 |
 | `scrollOffsetInterpolator` | `ScrollOffsetInterpolator` | -       | Custom scroll behavior interpolator                                                                              |
 | `scrollToPageSpringConfig` | `ScrollToPageSpringConfig` | -       | Configure spring parameters used when scrolling to the target page after a drag or `setPage` (must be a worklet) |
-| `panVelocityThreshold`     | `number`                   | `500`   | Minimum velocity for page switching. Note: page will switch if scrolled past 50% regardless of velocity          |
-| `pageActivationThreshold`  | `number`                   | `0.8`   | Visibility percentage for page activation                                                                        |
-
-### Page Animations
-
-| Property                | Type                    | Description                                                                      |
-| ----------------------- | ----------------------- | -------------------------------------------------------------------------------- |
-| `pageStyleInterpolator` | `PageStyleInterpolator` | Custom function for animating pages based on scroll position (must be a worklet) |
-
-The `pageStyleInterpolator` function receives:
-
-- `pageOffset`: number - The offset between current scroll position and page index (can be negative)
-- `pageIndex`: number - The page index that is being interpolated
-- `pageSize`: number - The size of each page (width for horizontal, height for vertical)
-- `scrollPosition`: number - The current scroll position as a floating point number
-
-And should return a `ViewStyle` object with transform/animation properties.
-
-⚠️ **Important**: The `pageStyleInterpolator` function must be a worklet (use `'worklet';` directive).
 
 ### Scroll Offset Interpolation
 
@@ -210,15 +191,17 @@ const rubberBandStyle: PagerStyleFn = ({ scrollPosition }) => {
 
 ### Gesture Customization
 
-| Property                                 | Type                            | Description                                                                                                                                                                                                                          |
-| ---------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `gestureConfiguration`                   | `(gesture: Gesture) => Gesture` | Function to customize pan gesture                                                                                                                                                                                                    |
-| `activationDistance`                     | `number`                        | Minimum distance before activation (default: 10)                                                                                                                                                                                     |
-| `failActivationWhenExceedingStartEdge`   | `boolean`                       | Fail gesture activation when swiping beyond **start** edge. For example, this is useful for resolving conflicts with fullscreen swipe-back navigation gesture (default: false)                                                       |
-| `failActivationWhenExceedingEndEdge`     | `boolean`                       | Fail gesture activation when swiping beyond **end** edge. Allows parent gestures to handle (default: false)                                                                                                                          |
-| `hitSlop`                                | `HitSlop`                       | Define touchable area for gesture recognition                                                                                                                                                                                        |
-| `blockParentScrollableWrapperActivation` | `boolean` (iOS)                 | When true, PagerView's pan gesture actively blocks activation of the nearest parent `ScrollableWrapper` gesture (if any). Use to capture swipes while parent scrollable is still decelerating (momentum). (iOS only, default: false) |
-| `blocksExternalGesture`                  | `ExternalGesture[]`             | Inverse (many-to-one) relation of `requireExternalGestureToFail`. Prevents listed gestures from activating simultaneously; PagerView gesture takes priority                                                                          |
+| Property                                 | Type                            | Default         | Description                                                                                                                                                                                              |
+| ---------------------------------------- | ------------------------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `gestureConfiguration`                   | `(gesture: Gesture) => Gesture` | -               | Function to customize pan gesture                                                                                                                                                                        |
+| `activationDistance`                     | `number`                        | 10              | Minimum distance before activation                                                                                                                                                                       |
+| `failActivationWhenExceedingStartEdge`   | `boolean`                       | false           | Fail gesture activation when swiping beyond **start** edge. For example, this is useful for resolving conflicts with fullscreen swipe-back navigation gesture                                            |
+| `failActivationWhenExceedingEndEdge`     | `boolean`                       | false           | Fail gesture activation when swiping beyond **end** edge. Allows parent gestures to handle                                                                                                               |
+| `hitSlop`                                | `HitSlop`                       | -               | Define touchable area for gesture recognition                                                                                                                                                            |
+| `blockParentScrollableWrapperActivation` | `boolean` (iOS)                 | false; iOS only | When true, PagerView's pan gesture actively blocks activation of the nearest parent `ScrollableWrapper` gesture (if any). Use to capture swipes while parent scrollable is still decelerating (momentum) |
+| `blocksExternalGesture`                  | `ExternalGesture[]`             | -               | Inverse (many-to-one) relation of `requireExternalGestureToFail`. Prevents listed gestures from activating simultaneously; PagerView gesture takes priority                                              |
+| `panVelocityThreshold`                   | `number`                        | 500             | Minimum velocity for page switching. Note: page will switch if scrolled past 50% regardless of velocity                                                                                                  |
+| `pageActivationThreshold`                | `number`                        | 0.8             | Visibility percentage for page activation                                                                                                                                                                |
 
 ### Performance
 
