@@ -24,7 +24,6 @@ https://github.com/user-attachments/assets/121e4339-e74d-4946-8d73-4760cc221d34
 - [📚 API Documentation](#-api-documentation)
   - [Basic Properties](#basic-properties)
   - [Animation Customization](#animation-customization)
-  - [Page Animations](#page-animations)
   - [Scroll Offset Interpolation](#scroll-offset-interpolation)
   - [Dynamic Styling](#dynamic-styling)
   - [Callbacks](#callbacks)
