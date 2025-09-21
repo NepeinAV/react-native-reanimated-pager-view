@@ -98,26 +98,6 @@ export type PagerViewProps = {
   lazyPageLimit?: number;
 
   /**
-   * Allows tracking the visibility of pages on the screen.
-   *
-   * @default false
-   */
-  trackOnscreen?: boolean;
-
-  /**
-   * Allows specifying the number of pages that are considered visible on the screen.
-   *
-   * ---
-   *
-   * Forms a window in which a page is marked as visible when it enters.
-   *
-   * For example, a value of `1` means that in addition to the active page, one page to the left and one to the right are marked as visible. If set to `0`, only the active page is tracked.
-   *
-   * @default 0
-   */
-  trackOnscreenPageLimit?: number;
-
-  /**
    * Allows specifying the size (width or height, depending on the orientation) of the parent container. If not set, the screen width is used by default.
    *
    * ----

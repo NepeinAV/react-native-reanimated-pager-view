@@ -28,8 +28,10 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated';
 
+import { ActivePageStoreContext } from './contexts/ActivePageStoreContext';
 import { PagerContext } from './contexts/PagerContext';
 import { useScrollableWrapper } from './contexts/ScrollableWrapperContext';
+import { useCreateActivePageStore } from './hooks/useCreateActivePageStore';
 import { useCustomClippingProvider } from './hooks/useCustomClipping';
 import { useExecuteEffectOnce } from './hooks/useExecuteEffectOnce';
 import { usePagerLayout } from './hooks/usePagerLayout';
@@ -64,7 +66,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
   (
     {
       children,
-      initialPage: _initialPage = 0,
+      initialPage = 0,
       pageMargin = 0,
       onPageSelected,
       onPageScrollStateChanged,
@@ -75,8 +77,6 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       onDragEnd,
       lazy = false,
       lazyPageLimit = 1,
-      trackOnscreen = false,
-      trackOnscreenPageLimit = 0,
       onInitialMeasure,
       estimatedSize,
       removeClippedPages: _removeClippedPages = true,
@@ -103,7 +103,6 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
     const isProvidedStyleFunction = typeof style === 'function';
 
     const pageCount = Children.count(children);
-    const initialPage = useRef(clamp(_initialPage, 0, pageCount - 1)).current;
 
     const {
       layoutViewRef,
@@ -584,8 +583,6 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
           pageIndex={index}
           lazy={lazy}
           lazyPageLimit={lazyPageLimit}
-          trackOnscreen={trackOnscreen}
-          trackOnscreenPageLimit={trackOnscreenPageLimit}
           canRemoveClippedPages={canRemoveClippedPages}
           isRemovingClippedPagesEnabled={removeClippedPages}
           pageStyleInterpolator={pageStyleInterpolator}
@@ -644,6 +641,43 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
   },
 );
 
+const PagerViewWrapper = memo(
+  forwardRef<PagerViewRef, PagerViewProps>(
+    (
+      { initialPage: _initialPage = 0, onPageSelected, children, ...props },
+      ref,
+    ) => {
+      const pageCount = Children.count(children);
+      const initialPage = useRef(clamp(_initialPage, 0, pageCount - 1)).current;
+
+      const { store, onPageSelected: storeOnPageSelected } =
+        useCreateActivePageStore(initialPage);
+
+      const handlePageSelected = useCallback(
+        (page: number) => {
+          onPageSelected?.(page);
+
+          storeOnPageSelected(page);
+        },
+        [onPageSelected, storeOnPageSelected],
+      );
+
+      return (
+        <ActivePageStoreContext.Provider value={store}>
+          <PagerView
+            {...props}
+            onPageSelected={handlePageSelected}
+            initialPage={initialPage}
+            ref={ref}
+          >
+            {children}
+          </PagerView>
+        </ActivePageStoreContext.Provider>
+      );
+    },
+  ),
+);
+
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
@@ -659,7 +693,4 @@ const styles = StyleSheet.create({
   },
 });
 
-const PagerViewMemo = memo(PagerView);
-PagerViewMemo.displayName = 'PagerView';
-
-export { PagerViewMemo as PagerView };
+export { PagerViewWrapper as PagerView };

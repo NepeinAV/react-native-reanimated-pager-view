@@ -64,3 +64,18 @@ export const isFabric = !!global.nativeFabricUIManager;
 
 export const getChildKey = (child: ReactNode, index: number) =>
   isValidElement(child) ? child.key : index;
+
+export const checkPageInWindow = ({
+  currentRelativePageIndex,
+  nextRelativePageIndex,
+  windowSize,
+}: {
+  currentRelativePageIndex: number;
+  nextRelativePageIndex: number;
+  windowSize: number;
+}) => {
+  return (
+    Math.abs(nextRelativePageIndex) <= windowSize ||
+    Math.abs(currentRelativePageIndex) <= windowSize
+  );
+};

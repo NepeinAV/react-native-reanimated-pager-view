@@ -24,14 +24,13 @@ https://github.com/user-attachments/assets/121e4339-e74d-4946-8d73-4760cc221d34
 - [📚 API Documentation](#-api-documentation)
   - [Basic Properties](#basic-properties)
   - [Animation Customization](#animation-customization)
-  - [Scroll Offset Interpolation](#scroll-offset-interpolation)
-  - [Dynamic Styling](#dynamic-styling)
   - [Callbacks](#callbacks)
   - [Gesture Customization](#gesture-customization)
   - [Performance](#performance)
-  - [Page Visibility Tracking](#page-visibility-tracking)
   - [Page Management](#page-management)
   - [Ref Methods](#ref-methods)
+- [↔️ Scroll Offset Interpolation](#-scroll-offset-interpolation)
+- [💄 Dynamic Styling](#-dynamic-styling)
 - [🔧 ScrollableWrapper Component](#-scrollablewrapper-component)
 - [👀 Page Visibility Tracking](#-page-visibility-tracking)
 - [📱 Vertical Mode](#-vertical-mode)
@@ -122,58 +121,8 @@ When using scrollable components inside PagerView pages, you need to prevent ges
 | Property                   | Type                       | Default | Description                                                                                                      |
 | -------------------------- | -------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------- |
 | `pageStyleInterpolator`    | `PageStyleInterpolator`    | -       | Custom function for animating pages based on scroll position (must be a worklet)                                 |
-| `scrollOffsetInterpolator` | `ScrollOffsetInterpolator` | -       | Custom scroll behavior interpolator                                                                              |
+| `scrollOffsetInterpolator` | `ScrollOffsetInterpolator` | -       | Custom function for modifying scroll behavior and overscroll effects                                             |
 | `scrollToPageSpringConfig` | `ScrollToPageSpringConfig` | -       | Configure spring parameters used when scrolling to the target page after a drag or `setPage` (must be a worklet) |
-
-### Scroll Offset Interpolation
-
-| Property                   | Type                       | Description                                                          |
-| -------------------------- | -------------------------- | -------------------------------------------------------------------- |
-| `scrollOffsetInterpolator` | `ScrollOffsetInterpolator` | Custom function for modifying scroll behavior and overscroll effects |
-
-The library provides a built-in `createBounceScrollOffsetInterpolator` utility for creating iOS-like bounce effects:
-
-```tsx
-import { createBounceScrollOffsetInterpolator } from 'react-native-reanimated-pager-view';
-
-const bounceInterpolator = createBounceScrollOffsetInterpolator({
-  resistanceFactor: 0.7, // Overscroll resistance (0-1)
-  threshold: 0.3, // Threshold for callback trigger
-  onThresholdReached: ({ side }) => {
-    console.log(`Reached ${side} boundary`);
-  },
-  triggerThresholdCallbackOnlyOnce: false, // Trigger callback multiple times or once per gesture
-});
-
-<PagerView scrollOffsetInterpolator={bounceInterpolator} />;
-```
-
-> You can write your own scroll offset interpolator by following the same pattern as `createBounceScrollOffsetInterpolator` 🔥.
-
-### Dynamic Styling
-
-The `style` prop can accept a function for dynamic styling based on scroll position:
-
-```tsx
-const rubberBandStyle: PagerStyleFn = ({ scrollPosition }) => {
-  'worklet';
-
-  return {
-    transformOrigin: scrollPosition < 0 ? 'top' : 'bottom',
-    transform: [
-      {
-        scaleY: interpolate(
-          scrollPosition,
-          [-1, 0, pages.length - 1, pages.length],
-          [1.25, 1, 1, 1.25],
-        ),
-      },
-    ],
-  };
-};
-
-<PagerView style={rubberBandStyle} />;
-```
 
 ### Callbacks
 
@@ -210,15 +159,6 @@ const rubberBandStyle: PagerStyleFn = ({ scrollPosition }) => {
 | `lazyPageLimit`      | `number`  | `1`     | Number of pages to preload                                                                                   |
 | `removeClippedPages` | `boolean` | `true`  | Remove invisible pages from Native Tree. Note: enabled by default but may cause issues, use with caution ⚠️. |
 
-### Page Visibility Tracking
-
-Enable tracking of which pages are currently visible on screen. Useful for analytics, video playback control, or other visibility-dependent features.
-
-| Property                 | Type      | Default | Description                                                                                                          |
-| ------------------------ | --------- | ------- | -------------------------------------------------------------------------------------------------------------------- |
-| `trackOnscreen`          | `boolean` | `false` | Enable visibility tracking for pages                                                                                 |
-| `trackOnscreenPageLimit` | `number`  | `0`     | Range of pages to consider as onscreen. 0 means only the active page, 1 means active page plus one page on each side |
-
 ### Page Management
 
 | Property                          | Type             | Default                          | Description                                                                                                                                                |
@@ -232,6 +172,52 @@ Enable tracking of which pages are currently visible on screen. Useful for analy
 | ------------------------- | ------------------------ | ---------------------------------- |
 | `setPage`                 | `(page: number) => void` | Navigate to page with animation    |
 | `setPageWithoutAnimation` | `(page: number) => void` | Navigate to page without animation |
+
+## ↔️ Scroll Offset Interpolation
+
+The library provides a built-in `createBounceScrollOffsetInterpolator` utility for creating iOS-like bounce effects:
+
+```tsx
+import { createBounceScrollOffsetInterpolator } from 'react-native-reanimated-pager-view';
+
+const bounceInterpolator = createBounceScrollOffsetInterpolator({
+  resistanceFactor: 0.7, // Overscroll resistance (0-1)
+  threshold: 0.3, // Threshold for callback trigger
+  onThresholdReached: ({ side }) => {
+    console.log(`Reached ${side} boundary`);
+  },
+  triggerThresholdCallbackOnlyOnce: false, // Trigger callback multiple times or once per gesture
+});
+
+<PagerView scrollOffsetInterpolator={bounceInterpolator} />;
+```
+
+> You can write your own scroll offset interpolator by following the same pattern as `createBounceScrollOffsetInterpolator` 🔥.
+
+## 💄 Dynamic Styling
+
+The `style` prop can accept a function for dynamic styling based on scroll position:
+
+```tsx
+const rubberBandStyle: PagerStyleFn = ({ scrollPosition }) => {
+  'worklet';
+
+  return {
+    transformOrigin: scrollPosition < 0 ? 'top' : 'bottom',
+    transform: [
+      {
+        scaleY: interpolate(
+          scrollPosition,
+          [-1, 0, pages.length - 1, pages.length],
+          [1.25, 1, 1, 1.25],
+        ),
+      },
+    ],
+  };
+};
+
+<PagerView style={rubberBandStyle} />;
+```
 
 ## 🔧 ScrollableWrapper Component
 
@@ -276,13 +262,6 @@ function HorizontalCarouselPage() {
 }
 ```
 
-### Props
-
-| Property      | Type          | Default      | Description                           |
-| ------------- | ------------- | ------------ | ------------------------------------- |
-| `orientation` | `Orientation` | `'vertical'` | Orientation of the scrollable content |
-| `children`    | `ReactNode`   | -            | The scrollable component to wrap      |
-
 ### Advanced Usage with Multiple Scrollables
 
 ```tsx
@@ -315,87 +294,6 @@ function ComplexPage() {
 
 The library provides built-in support for tracking which pages are currently visible on screen. This is useful for analytics, lazy loading content, pausing/resuming videos, or any other visibility-dependent features.
 
-### OnscreenPage Component
-
-A render-prop component that provides visibility state for pages. Useful for conditional rendering based on page visibility.
-
-**Props:**
-
-- `children: (isOnscreen: boolean) => ReactNode` - Render function that receives visibility state
-- `once?: boolean` - If true, `isOnscreen` will remain true once the page becomes visible (default: false)
-
-```tsx
-import React from 'react';
-import { View, Text } from 'react-native';
-import { PagerView, OnscreenPage } from 'react-native-reanimated-pager-view';
-
-const PAGES = [
-  { id: 'video1', uri: 'video1.mp4' },
-  { id: 'video2', uri: 'video2.mp4' },
-  { id: 'video3', uri: 'video3.mp4' },
-];
-
-const VideoPage = ({ videoUri }) => {
-  return (
-    <OnscreenPage>
-      {(isOnscreen) => (
-        <View>
-          <Video
-            source={{ uri: videoUri }}
-            paused={!isOnscreen} // Pause when page is not visible
-          />
-          <Text>Status: {isOnscreen ? 'Playing' : 'Paused'}</Text>
-        </View>
-      )}
-    </OnscreenPage>
-  );
-};
-
-const App = () => {
-  const children = useMemo(
-    () => PAGES.map((page) => <VideoPage key={page.id} videoUri={page.uri} />),
-    [],
-  );
-
-  return (
-    <PagerView
-      trackOnscreen={true}
-      trackOnscreenPageLimit={0} // Only active page is considered onscreen
-    >
-      {children}
-    </PagerView>
-  );
-};
-```
-
-**Example with `once` prop:**
-
-```tsx
-const AnalyticsPage = ({ pageId }) => {
-  return (
-    <OnscreenPage once={true}>
-      {(hasBeenVisible) => {
-        // Track page view only once when it becomes visible
-        if (hasBeenVisible) {
-          analytics.track('page_view', { pageId });
-        }
-
-        return (
-          <View>
-            <Text>Page {pageId}</Text>
-            <Text>Has been seen: {hasBeenVisible ? 'Yes' : 'No'}</Text>
-          </View>
-        );
-      }}
-    </OnscreenPage>
-  );
-};
-```
-
-### Alternative: useIsOnscreenPage Hook
-
-You can also use the `useIsOnscreenPage` hook:
-
 ```tsx
 import React, { useMemo } from 'react';
 import { useIsOnscreenPage } from 'react-native-reanimated-pager-view';
@@ -426,19 +324,13 @@ const VisibilityTrackingExample = () => {
     [],
   );
 
-  return (
-    <PagerView trackOnscreen={true} trackOnscreenPageLimit={1}>
-      {children}
-    </PagerView>
-  );
+  return <PagerView>{children}</PagerView>;
 };
 ```
 
 ## 📱 Vertical Mode
 
 The PagerView supports vertical scrolling, perfect for creating any vertical page-based navigation.
-
-### Basic Vertical Usage
 
 ```tsx
 import React, { useMemo } from 'react';

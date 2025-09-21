@@ -1,4 +1,4 @@
-import { memo, type PropsWithChildren, useCallback, useState } from 'react';
+import { memo, type PropsWithChildren, useState } from 'react';
 
 import { StyleSheet, type ViewStyle } from 'react-native';
 
@@ -10,7 +10,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { OnscreenPageContext } from './contexts/OnscreenPageContext';
+import { PageIndexContext } from './contexts/PageIndexContext';
 import { useCustomClippingReceiver } from './hooks/useCustomClipping';
 import { PageWithInterpolation } from './PageWithInterpolation';
 import {
@@ -41,10 +41,7 @@ type Props = PropsWithChildren<{
   scrollPosition: SharedValue<ScrollPosition>;
   orientation: Orientation;
 }> &
-  Pick<
-    Required<PagerViewProps>,
-    'lazy' | 'lazyPageLimit' | 'trackOnscreen' | 'trackOnscreenPageLimit'
-  >;
+  Pick<Required<PagerViewProps>, 'lazy' | 'lazyPageLimit'>;
 
 const PageContainer = ({
   pageSize,
@@ -54,8 +51,6 @@ const PageContainer = ({
   currentPage,
   lazy,
   lazyPageLimit,
-  trackOnscreen,
-  trackOnscreenPageLimit,
   canRemoveClippedPages,
   isRemovingClippedPagesEnabled,
   pageStyleInterpolator,
@@ -68,16 +63,6 @@ const PageContainer = ({
       : true,
   );
 
-  const [isOnscreen, setIsOnscreen] = useState(() =>
-    trackOnscreen
-      ? checkPageIndexInRange(
-          currentPage.value,
-          pageIndex,
-          trackOnscreenPageLimit,
-        )
-      : true,
-  );
-
   const { clippedPageStyle } = useCustomClippingReceiver({
     pageSize,
     currentPage,
@@ -87,19 +72,6 @@ const PageContainer = ({
     orientation,
   });
 
-  const setState = useCallback(
-    (nextIsMounted: boolean, nextIsOnscreen: boolean) => {
-      if (lazy) {
-        setIsMounted(isMounted || nextIsMounted);
-      }
-
-      if (trackOnscreen) {
-        setIsOnscreen(nextIsOnscreen);
-      }
-    },
-    [isMounted, lazy, trackOnscreen],
-  );
-
   useAnimatedReaction(
     () => currentPage.value,
     () => {
@@ -108,13 +80,10 @@ const PageContainer = ({
         pageIndex,
         lazyPageLimit,
       );
-      const nextIsOnscreen = checkPageIndexInRange(
-        currentPage.value,
-        pageIndex,
-        trackOnscreenPageLimit,
-      );
 
-      runOnJS(setState)(nextIsMounted, nextIsOnscreen);
+      if (lazy) {
+        runOnJS(setIsMounted)(isMounted || nextIsMounted);
+      }
     },
   );
 
@@ -143,9 +112,9 @@ const PageContainer = ({
           style={[styles.flex, styles.hidden, mountAnimation, clippedPageStyle]}
         >
           {isMounted ? (
-            <OnscreenPageContext.Provider value={isOnscreen}>
+            <PageIndexContext.Provider value={pageIndex}>
               {children}
-            </OnscreenPageContext.Provider>
+            </PageIndexContext.Provider>
           ) : null}
         </Animated.View>
       </Animated.View>
