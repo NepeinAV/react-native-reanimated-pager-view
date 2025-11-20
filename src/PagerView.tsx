@@ -47,7 +47,7 @@ import {
 import { getChildKey, getPageOffset, isArrayEqual } from './utils';
 
 const NEXT_PAGE_VISIBLE_PART_THRESHOLD = 0.5;
-const GESTURE_DIRECTION_RATIO = 0.5; // 90 deg
+const DEFAULT_GESTURE_DIRECTION_TOLERANCE_DEG = 45;
 
 const defaultBlocksExternalGesture: ExternalGesture[] = [];
 
@@ -94,6 +94,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       blockParentScrollableWrapperActivation,
       blocksExternalGesture = defaultBlocksExternalGesture,
       scrollToPageSpringConfig = defaultScrollToPageSpringConfig,
+      gestureDirectionToleranceDeg = DEFAULT_GESTURE_DIRECTION_TOLERANCE_DEG,
     },
     ref,
   ) => {
@@ -382,6 +383,11 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       ],
     );
 
+    const gestureAngleThreshold = useMemo(
+      () => Math.tan((gestureDirectionToleranceDeg * Math.PI) / 180),
+      [gestureDirectionToleranceDeg],
+    );
+
     let panGesture = useMemo(() => {
       let gesture = Gesture.Pan()
         .enabled(scrollEnabled)
@@ -438,16 +444,12 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
             return;
           }
 
-          // Calculate ratio of main axis to cross axis movement
-          const mainToCrossRatio =
-            crossAxisAbsoluteDelta === 0
-              ? Number.POSITIVE_INFINITY
-              : mainAxisAbsoluteDelta / crossAxisAbsoluteDelta;
+          const crossToMain = crossAxisAbsoluteDelta / mainAxisAbsoluteDelta;
 
           // Activate gesture if main axis movement is sufficient and dominant
           if (
             mainAxisAbsoluteDelta >= gestureActivationDistance &&
-            mainToCrossRatio >= GESTURE_DIRECTION_RATIO
+            crossToMain <= gestureAngleThreshold
           ) {
             isGestureManuallyActivated.value = true;
 
@@ -456,15 +458,9 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
             return;
           }
 
-          // Fail gesture if cross axis movement dominates
-          const crossToMainRatio =
-            mainAxisAbsoluteDelta === 0
-              ? Number.POSITIVE_INFINITY
-              : crossAxisAbsoluteDelta / mainAxisAbsoluteDelta;
-
           if (
             crossAxisAbsoluteDelta >= gestureActivationDistance &&
-            crossToMainRatio >= GESTURE_DIRECTION_RATIO
+            crossToMain > gestureAngleThreshold
           ) {
             state.fail();
           }
@@ -554,6 +550,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       pageSize,
       panVelocityThreshold,
       scrollToPage,
+      gestureAngleThreshold,
     ]);
 
     const pageAnimatedStyle = useAnimatedStyle(() => ({

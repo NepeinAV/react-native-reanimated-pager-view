@@ -33,7 +33,9 @@ export const ScrollableWrapper = ({
   );
 
   if (pagerView && pagerView.orientation !== orientation) {
-    gesture.requireExternalGestureToFail(pagerView.panGesture);
+    gesture
+      .requireExternalGestureToFail(pagerView.panGesture)
+      .simultaneousWithExternalGesture(pagerView.panGesture);
   }
 
   return (

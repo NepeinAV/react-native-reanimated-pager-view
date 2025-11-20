@@ -64,6 +64,15 @@ export type PagerViewProps = {
   gestureConfiguration?: (gesture: PanGesture) => PanGesture;
 
   /**
+   * How diagonal a swipe can be (in degrees) before PagerView rejects it as off-axis.
+   *
+   * Larger values allow more diagonal swipes; smaller values require a straighter swipe.
+   *
+   * @default 45
+   */
+  gestureDirectionToleranceDeg?: number;
+
+  /**
    * Function to customize page style based on scroll position
    *
    * @returns ViewStyle object with animation styles
