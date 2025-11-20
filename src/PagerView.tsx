@@ -102,6 +102,9 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
     const isVertical = orientation === 'vertical';
     const isProvidedStyleFunction = typeof style === 'function';
 
+    const externalStyleFunction = isProvidedStyleFunction ? style : undefined;
+    const pagerStaticStyle = isProvidedStyleFunction ? undefined : style;
+
     const pageCount = Children.count(children);
 
     const {
@@ -561,16 +564,16 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       ],
     }));
 
-    const pagerStyle = useAnimatedStyle(() => {
-      if (isProvidedStyleFunction) {
-        return style({
-          scrollPosition: -panOffset.value / pageSize,
-          interpolatedScrollPosition: interpolatedScrollPosition.value,
-          pageSize,
-        });
+    const pagerAnimatedStyle = useAnimatedStyle(() => {
+      if (!externalStyleFunction) {
+        return {};
       }
 
-      return style || {};
+      return externalStyleFunction({
+        scrollPosition: -panOffset.value / pageSize,
+        interpolatedScrollPosition: interpolatedScrollPosition.value,
+        pageSize,
+      });
     });
 
     const content = Children.map(children, (child, index) => {
@@ -600,7 +603,9 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
     );
 
     return (
-      <Animated.View style={[styles.flex, pagerStyle]}>
+      <Animated.View
+        style={[styles.flex, pagerStaticStyle, pagerAnimatedStyle]}
+      >
         <View
           style={StyleSheet.absoluteFill}
           pointerEvents="none"

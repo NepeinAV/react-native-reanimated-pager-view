@@ -110,7 +110,7 @@ When using scrollable components inside PagerView pages, you need to prevent ges
 | Property        | Type                         | Default        | Description                                  |
 | --------------- | ---------------------------- | -------------- | -------------------------------------------- |
 | `children`      | `ReactNode[]`                | -              | Array of pages to display                    |
-| `style`         | `ViewStyle \| PagerStyleFn`  | -              | Style object or function for the container   |
+| `style`         | `StyleProp<ViewStyle> \| PagerStyleFn`  | -              | Style object/array or function for the container   |
 | `initialPage`   | `number`                     | `0`            | Initial page number                          |
 | `scrollEnabled` | `boolean`                    | `true`         | Enable pager scrolling                       |
 | `pageMargin`    | `number`                     | `0`            | Margin between pages                         |

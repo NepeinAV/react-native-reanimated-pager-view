@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 
-import { type ViewStyle } from 'react-native';
+import { type StyleProp, type ViewStyle } from 'react-native';
 
 import type { PanGesture } from 'react-native-gesture-handler';
 import { type WithSpringConfig } from 'react-native-reanimated';
@@ -19,7 +19,7 @@ export type PagerViewProps = {
   /**
    * Style object for the container
    */
-  style?: ViewStyle | PagerStyleFn;
+  style?: StyleProp<ViewStyle> | PagerStyleFn;
 
   /**
    * The orientation of the pager
