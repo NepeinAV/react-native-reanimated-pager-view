@@ -26,6 +26,7 @@ import Animated, {
   useDerivedValue,
   useSharedValue,
   withSpring,
+  Reanimated3DefaultSpringConfig,
 } from 'react-native-reanimated';
 
 import { ActivePageStoreContext } from './contexts/ActivePageStoreContext';
@@ -57,6 +58,7 @@ const defaultScrollToPageSpringConfig: ScrollToPageSpringConfig = ({
   'worklet';
 
   return {
+    ...Reanimated3DefaultSpringConfig,
     damping: 100,
     mass: isOverscroll ? 0.5 : 0.15,
   };

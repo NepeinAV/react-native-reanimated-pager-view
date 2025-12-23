@@ -1,7 +1,7 @@
 {
   "name": "react-native-reanimated-pager-view",
   "version": "3.2.0",
-  "description": "High-performance PagerView component for React Native, built on react-native-reanimated v3",
+  "description": "High-performance PagerView component for React Native, built on react-native-reanimated v4",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
   "exports": {
@@ -84,8 +84,8 @@
     "react": "19.0.0",
     "react-native": "0.79.5",
     "react-native-builder-bob": "^0.40.13",
-    "react-native-gesture-handler": "2.24.0",
-    "react-native-reanimated": "3.17.4",
+    "react-native-gesture-handler": "2.30.0",
+    "react-native-reanimated": "4.2.1",
     "release-it": "^17.10.0",
     "typescript": "^5.8.3"
   },

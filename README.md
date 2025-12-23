@@ -1,12 +1,12 @@
 # react-native-reanimated-pager-view
 
-High-performance PagerView component for React Native, built on `react-native-reanimated v3` and `react-native-gesture-handler`. Enhanced customization capabilities and smooth animations running on the native thread.
+High-performance PagerView component for React Native, built on `react-native-reanimated v4` and `react-native-gesture-handler`. Enhanced customization capabilities and smooth animations running on the native thread.
 
 <a href="https://www.npmjs.com/package/react-native-reanimated-pager-view"><img alt="NPM Version" src="https://img.shields.io/npm/v/react-native-reanimated-pager-view"></a>
 
 ## ✨ Features
 
-- 🚀 **High Performance** - uses `react-native-reanimated v3` for smooth animations on the native thread
+- 🚀 **High Performance** - uses `react-native-reanimated v4` for smooth animations on the native thread
 - 🎨 **Full Customization** - configure gestures, animations and behavior through callbacks
 - ✨ **Custom Page Animations** - create stunning page transitions with `pageStyleInterpolator`
 - ↔️ **Overscroll effects** - add an overscroll effect when reaching the edges (see `createBounceScrollOffsetInterpolator` for iOS-like bounce effect)
