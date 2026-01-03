@@ -4,13 +4,14 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
   interpolate,
+  type SharedValue,
 } from 'react-native-reanimated';
 
 import { styles } from '../styles';
 
 interface NavigationIconProps {
   icon: string;
-  animatedPage: Animated.SharedValue<number>;
+  animatedPage: SharedValue<number>;
   index: number;
 }
 

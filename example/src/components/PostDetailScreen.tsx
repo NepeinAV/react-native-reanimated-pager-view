@@ -13,6 +13,7 @@ import Animated, {
   useAnimatedStyle,
   interpolate,
   Extrapolation,
+  type SharedValue,
 } from 'react-native-reanimated';
 import {
   createBounceScrollOffsetInterpolator,
@@ -91,7 +92,7 @@ const pagerViewSwipeBackArea = { left: -30 };
 
 const PageIndicator: React.FC<{
   totalPages: number;
-  scrollPosition: Animated.SharedValue<number>;
+  scrollPosition: SharedValue<number>;
 }> = ({ totalPages, scrollPosition }) => {
   return (
     <View style={styles.indicatorContainer}>
@@ -104,7 +105,7 @@ const PageIndicator: React.FC<{
 
 const PageDot: React.FC<{
   index: number;
-  scrollPosition: Animated.SharedValue<number>;
+  scrollPosition: SharedValue<number>;
 }> = ({ index, scrollPosition }) => {
   const animatedStyle = useAnimatedStyle(() => {
     const isActive = interpolate(
