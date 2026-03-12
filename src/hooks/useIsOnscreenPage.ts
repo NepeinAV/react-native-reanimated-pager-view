@@ -34,5 +34,11 @@ export const useIsOnscreenPage = ({
     },
   );
 
-  return Math.abs(relativePageIndex) <= windowSize;
+  const isOnscreen = Math.abs(relativePageIndex) <= windowSize;
+
+  if (once && isOnscreen) {
+    wasOnscreenOnce.current = true;
+  }
+
+  return once ? wasOnscreenOnce.current : isOnscreen;
 };
