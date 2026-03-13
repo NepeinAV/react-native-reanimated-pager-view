@@ -109,6 +109,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
     const pagerStaticStyle = isProvidedStyleFunction ? undefined : style;
 
     const pageCount = Children.count(children);
+    const currentPage = useSharedValue(initialPage);
 
     const {
       layoutViewRef,
@@ -116,13 +117,16 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       isLayoutMeasured,
       pageSize,
       updateLayoutValue,
+      isLayoutHandlerCalledShared,
     } = usePagerLayout({
       estimatedSize,
       isVertical,
       pageCount,
       pageMargin,
       onUpdateLayoutValue: (nextPageSize) => {
-        panOffset.value = getPageOffset(currentPage.value, nextPageSize);
+        runOnUI(() => {
+          panOffset.value = getPageOffset(currentPage.value, nextPageSize);
+        })();
       },
     });
 
@@ -141,8 +145,6 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
     const panGestureStartOffset = useSharedValue(initialPanOffset);
 
     const scrollState = useSharedValue<ScrollState>('idle');
-
-    const currentPage = useSharedValue(initialPage);
     const panGestureStartPage = useSharedValue(initialPage);
 
     const isGestureManuallyActivated = useSharedValue(false);
@@ -271,9 +273,14 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
 
         scrollState.value = 'idle';
 
-        setRemoveClippedPages(false);
-
         setCurrentPageAndNotify(page);
+
+        // Avoid applying programmatic offsets before the first real layout measurement.
+        if (!isLayoutHandlerCalledShared.value) {
+          return;
+        }
+
+        setRemoveClippedPages(false);
 
         scrollToPage(page, animated);
       },
@@ -282,6 +289,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
         scrollToPage,
         setCurrentPageAndNotify,
         setRemoveClippedPages,
+        isLayoutHandlerCalledShared,
       ],
     );
 

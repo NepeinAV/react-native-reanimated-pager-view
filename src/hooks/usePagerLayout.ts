@@ -2,6 +2,8 @@ import { useRef, useState } from 'react';
 
 import { View, useWindowDimensions, type LayoutRectangle } from 'react-native';
 
+import { useSharedValue } from 'react-native-reanimated';
+
 type Params = {
   estimatedSize: number | null | undefined;
   isVertical: boolean;
@@ -18,6 +20,9 @@ export const usePagerLayout = ({
   onUpdateLayoutValue,
 }: Params) => {
   const layoutViewRef = useRef<View>(null);
+  const isLayoutHandlerCalled = useRef(false);
+
+  const isLayoutHandlerCalledShared = useSharedValue(false);
 
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
@@ -43,9 +48,18 @@ export const usePagerLayout = ({
   ) => {
     let nextLayoutSize = isVertical ? layout.height : layout.width;
 
-    if (layoutSize !== nextLayoutSize) {
-      setLayoutSize(nextLayoutSize);
+    const isLayoutSizeChanged = layoutSize !== nextLayoutSize;
 
+    const isFirstCall = !isLayoutHandlerCalled.current;
+
+    isLayoutHandlerCalled.current = true;
+    isLayoutHandlerCalledShared.value = true;
+
+    if (isLayoutSizeChanged) {
+      setLayoutSize(nextLayoutSize);
+    }
+
+    if (isFirstCall || isLayoutSizeChanged) {
       onUpdateLayoutValue(getPageSize(nextLayoutSize));
     }
   };
@@ -54,6 +68,7 @@ export const usePagerLayout = ({
     pageSize,
     contentSize,
     isLayoutMeasured,
+    isLayoutHandlerCalledShared,
     layoutViewRef,
     updateLayoutValue,
   };
