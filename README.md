@@ -295,6 +295,9 @@ function ComplexPage() {
 
 The library provides built-in support for tracking which pages are currently visible on screen. This is useful for analytics, lazy loading content, pausing/resuming videos, or any other visibility-dependent features.
 
+- `useIsOnscreenPage()` returns the current visibility state and re-renders the page when it changes
+- `useIsOnscreenPageGetter()` returns a stable getter `() => boolean` that you can call later inside callbacks or effects
+
 ```tsx
 import React, { useMemo } from 'react';
 import { useIsOnscreenPage } from 'react-native-reanimated-pager-view';
@@ -326,6 +329,27 @@ const VisibilityTrackingExample = () => {
   );
 
   return <PagerView>{children}</PagerView>;
+};
+```
+
+If you need to read the current visibility state lazily, use `useIsOnscreenPageGetter`:
+
+```tsx
+import { useCallback } from 'react';
+import { useIsOnscreenPageGetter } from 'react-native-reanimated-pager-view';
+
+const PageWithDeferredCheck = () => {
+  const getIsOnscreenPage = useIsOnscreenPageGetter();
+
+  const handleSomething = useCallback(() => {
+    if (!getIsOnscreenPage()) {
+      return;
+    }
+
+    // Do something only for the currently visible page
+  }, [getIsOnscreenPage]);
+
+  return null;
 };
 ```
 

@@ -25,6 +25,7 @@ export type {
 export { getOverscrollOffset } from './utils';
 
 export { useIsOnscreenPage } from './hooks/useIsOnscreenPage';
+export { useIsOnscreenPageGetter } from './hooks/useIsOnscreenPageGetter';
 export { useActivePageIndex } from './hooks/useActivePageIndex';
 export {
   usePageRelativeIndex,
