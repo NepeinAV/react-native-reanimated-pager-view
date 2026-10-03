@@ -3,6 +3,7 @@ import {
   forwardRef,
   memo,
   useImperativeHandle,
+  useLayoutEffect,
   useMemo,
   useRef,
   useEffect,
@@ -665,13 +666,20 @@ const PagerViewWrapper = memo(
       const { store, onPageSelected: storeOnPageSelected } =
         useCreateActivePageStore(initialPage);
 
+      const onPageSelectedRef = useRef(onPageSelected);
+
+      useLayoutEffect(() => {
+        onPageSelectedRef.current = onPageSelected;
+      });
+
+      // Stable, so an inline `onPageSelected` doesn't recreate worklets and the pan gesture on every render
       const handlePageSelected = useCallback(
         (page: number) => {
-          onPageSelected?.(page);
+          onPageSelectedRef.current?.(page);
 
           storeOnPageSelected(page);
         },
-        [onPageSelected, storeOnPageSelected],
+        [storeOnPageSelected],
       );
 
       return (
