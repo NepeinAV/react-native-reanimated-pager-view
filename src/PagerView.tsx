@@ -248,7 +248,17 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
           panOffset.value = withSpring(
             pageOffset,
             scrollToPageSpringConfig({ isOverscroll, page: clampedPage }),
-            () => {
+            (finished) => {
+              // The visible scroll position may not change while settling (e.g. when the pager
+              // is pressed against an edge), and then the scroll position reaction can't finish it
+              if (finished && scrollState.value === 'settling') {
+                if (currentPage.value !== clampedPage) {
+                  setCurrentPageAndNotify(clampedPage);
+                }
+
+                scrollState.value = 'idle';
+              }
+
               setRemoveClippedPages(true);
             },
           );
@@ -265,6 +275,9 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
         panOffset,
         setRemoveClippedPages,
         scrollToPageSpringConfig,
+        scrollState,
+        currentPage,
+        setCurrentPageAndNotify,
       ],
     );
 
@@ -502,11 +515,18 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
 
           const velocity = isVertical ? event.velocityY : event.velocityX;
 
-          if (!isLayoutMeasured || !translation) {
+          if (!isLayoutMeasured) {
             return;
           }
 
           scrollState.value = 'settling';
+
+          if (!translation) {
+            // The finger returned to where it started: settle on the closest page
+            scrollToPage(Math.round(-panOffset.value / pageSize), true);
+
+            return;
+          }
 
           const isStart = velocity < 0;
 
