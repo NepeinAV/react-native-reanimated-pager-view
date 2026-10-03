@@ -274,7 +274,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
 
         scrollState.value = 'idle';
 
-        setCurrentPageAndNotify(page);
+        setCurrentPageAndNotify(clamp(page, 0, pageCount - 1));
 
         // Avoid applying programmatic offsets before the first real layout measurement.
         if (!isLayoutHandlerCalledShared.value) {
@@ -291,6 +291,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
         setCurrentPageAndNotify,
         setRemoveClippedPages,
         isLayoutHandlerCalledShared,
+        pageCount,
       ],
     );
 
