@@ -147,6 +147,7 @@ export const IOSWidgetCarousel = () => {
   return (
     <CustomPagerView
       pageStyleInterpolator={iosWidgetCarouselPageInterpolator}
+      loop
       blockParentScrollableWrapperActivation
       scrollToPageSpringConfig={scrollToPageSpringConfig}
     >

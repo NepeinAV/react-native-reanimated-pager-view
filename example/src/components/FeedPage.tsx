@@ -14,6 +14,7 @@ import { postStyles } from '../styles/postStyles';
 
 import { CardStack } from './CardStack';
 import { IOSWidgetCarousel } from './IOSWidgetCarousel';
+import { LoopBanners } from './LoopBanners';
 import { PostItem } from './PostItem';
 
 import type { Post } from '../types';
@@ -34,6 +35,10 @@ const FeedHeader: React.FC = () => {
 
       <View style={localStyles.categoriesSection}>
         <IOSWidgetCarousel />
+      </View>
+
+      <View style={localStyles.categoriesSection}>
+        <LoopBanners />
       </View>
 
       <View style={localStyles.categoriesSection}>
