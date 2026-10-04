@@ -16,26 +16,28 @@ export const usePageRelativeIndex = (
   const store = useActivePageStore();
   const pageIndex = usePageIndex();
 
-  const relativeIndexRef = useRef(pageIndex - store.get());
+  const activePageIndexRef = useRef(store.get());
 
+  // Relative indices are computed from the current page index,
+  // so they don't go stale when pages are reordered
   return useSyncExternalStore(
     (listener) =>
       store.subscribe(() => {
-        const nextRelativePageIndex = pageIndex - store.get();
+        const activePageIndex = store.get();
 
         const needToUpdate = checkNeedUpdate({
-          currentPageIndex: store.get(),
-          currentRelativePageIndex: relativeIndexRef.current,
-          nextRelativePageIndex,
+          currentPageIndex: activePageIndex,
+          currentRelativePageIndex: pageIndex - activePageIndexRef.current,
+          nextRelativePageIndex: pageIndex - activePageIndex,
         });
 
-        relativeIndexRef.current = nextRelativePageIndex;
+        activePageIndexRef.current = activePageIndex;
 
         if (needToUpdate) {
           listener();
         }
       }),
-    () => relativeIndexRef.current,
+    () => pageIndex - store.get(),
   );
 };
 
