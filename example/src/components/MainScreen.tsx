@@ -14,7 +14,6 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   interpolate,
-  Extrapolation,
 } from 'react-native-reanimated';
 import {
   type PagerViewRef,
@@ -74,17 +73,22 @@ export const MainScreen = () => {
     [pagerScrollPosition],
   );
 
+  const tabWidth = screenWidth / pages.length;
+
   const navItemBackgroundAnimatedStyle = useAnimatedStyle(() => {
-    const translateX = interpolate(
+    const lastPageIndex = pages.length - 1;
+
+    // The pager is looped, so between the last and the first pages
+    // the background moves straight back across the tab bar
+    const tabPosition = interpolate(
       pagerScrollPosition.value,
-      [0, pages.length - 1],
-      [0, (screenWidth / pages.length) * (pages.length - 1)],
-      Extrapolation.CLAMP,
+      [0, lastPageIndex, pages.length],
+      [0, lastPageIndex, 0],
     );
 
     return {
-      width: screenWidth / pages.length - 12,
-      transform: [{ translateX: translateX }],
+      width: tabWidth - 12,
+      transform: [{ translateX: tabPosition * tabWidth }],
     };
   });
 
@@ -155,6 +159,7 @@ export const MainScreen = () => {
 
           <CustomPagerView
             ref={ref}
+            loop
             onPageScroll={onPageScroll}
             removeClippedPages={false}
             pageStyleInterpolator={pageStyleInterpolator}
@@ -182,6 +187,7 @@ export const MainScreen = () => {
                     icon={page.icon}
                     animatedPage={pagerScrollPosition}
                     index={index}
+                    pageCount={pages.length}
                   />
                   <Text style={appStyles.navLabel}>{page.title}</Text>
                 </TouchableOpacity>

@@ -13,17 +13,24 @@ interface NavigationIconProps {
   icon: string;
   animatedPage: SharedValue<number>;
   index: number;
+  pageCount: number;
 }
 
 export const NavigationIcon: React.FC<NavigationIconProps> = ({
   icon,
   animatedPage,
   index,
+  pageCount,
 }) => {
   const iconAnimatedStyle = useAnimatedStyle(() => {
+    // Shortest distance around the loop, so the first and the last tabs are neighbours
+    const pageOffset = animatedPage.value - index;
+    const loopedPageOffset =
+      pageOffset - Math.round(pageOffset / pageCount) * pageCount;
+
     const scale = interpolate(
-      animatedPage.value,
-      [index - 1, index, index + 1],
+      loopedPageOffset,
+      [-1, 0, 1],
       [1, 1.2, 1],
       'clamp',
     );
