@@ -1,8 +1,9 @@
 import { useRef, useSyncExternalStore } from 'react';
 
 import { useActivePageStore } from '../contexts/ActivePageStoreContext';
+import { useLoopPageCount } from '../contexts/LoopPageCountContext';
 import { usePageIndex } from '../contexts/PageIndexContext';
-import { checkPageInWindow } from '../utils';
+import { checkPageInWindow, getRelativePageIndex } from '../utils';
 
 type CheckNeedUpdateFn = (params: {
   currentPageIndex: number;
@@ -15,11 +16,12 @@ export const usePageRelativeIndex = (
 ) => {
   const store = useActivePageStore();
   const pageIndex = usePageIndex();
+  const loopPageCount = useLoopPageCount();
 
   const activePageIndexRef = useRef(store.get());
 
-  // Relative indices are computed from the current page index,
-  // so they don't go stale when pages are reordered
+  // Relative indices are computed from the current page index and page count,
+  // so they don't go stale when pages are reordered or added
   return useSyncExternalStore(
     (listener) =>
       store.subscribe(() => {
@@ -27,8 +29,16 @@ export const usePageRelativeIndex = (
 
         const needToUpdate = checkNeedUpdate({
           currentPageIndex: activePageIndex,
-          currentRelativePageIndex: pageIndex - activePageIndexRef.current,
-          nextRelativePageIndex: pageIndex - activePageIndex,
+          currentRelativePageIndex: getRelativePageIndex(
+            pageIndex,
+            activePageIndexRef.current,
+            loopPageCount,
+          ),
+          nextRelativePageIndex: getRelativePageIndex(
+            pageIndex,
+            activePageIndex,
+            loopPageCount,
+          ),
         });
 
         activePageIndexRef.current = activePageIndex;
@@ -37,7 +47,7 @@ export const usePageRelativeIndex = (
           listener();
         }
       }),
-    () => pageIndex - store.get(),
+    () => getRelativePageIndex(pageIndex, store.get(), loopPageCount),
   );
 };
 

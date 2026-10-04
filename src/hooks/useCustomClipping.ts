@@ -72,6 +72,7 @@ export const useCustomClippingReceiver = ({
   isRemovingClippedPagesEnabled,
   pageSize,
   orientation = 'horizontal',
+  loopPageCount,
 }: {
   currentPage: SharedValue<number>;
   pageIndex: number;
@@ -79,6 +80,7 @@ export const useCustomClippingReceiver = ({
   isRemovingClippedPagesEnabled: boolean;
   pageSize: number;
   orientation?: Orientation;
+  loopPageCount: number | null;
 }) => {
   const isPageMountedInNativeTree = useSharedValue(1);
 
@@ -99,7 +101,12 @@ export const useCustomClippingReceiver = ({
         return;
       }
 
-      const isInRange = checkPageIndexInRange(currentPage.value, pageIndex, 1);
+      const isInRange = checkPageIndexInRange(
+        currentPage.value,
+        pageIndex,
+        1,
+        loopPageCount,
+      );
 
       if (isInRange) {
         isPageMountedInNativeTree.value = 1;

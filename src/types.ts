@@ -82,9 +82,29 @@ export type PagerViewProps = {
   /**
    * Function to customize behaviour of Pager scroll offset.
    *
+   * Ignored when `loop` is enabled.
+   *
    * @returns Modified offset value
    */
   scrollOffsetInterpolator?: ScrollOffsetInterpolator;
+
+  /**
+   * Makes the pager infinite: the first page follows the last one and vice versa.
+   *
+   * In loop mode:
+   * - `setPage` / `setPageWithoutAnimation` count the page from the current one: pages within `[0, pageCount)` are reached directly,
+   *   like in a regular pager, and pages outside this range continue around the loop (e.g. `setPage(currentPage + 1)` on the last page scrolls forward to the first one);
+   * - `onPageScroll` and scroll positions passed to `style` and `pageStyleInterpolator` are in the `[0, pageCount)` range;
+   * - `pageOffset` in `pageStyleInterpolator` is relative to the closest copy of the page: compute everything from it rather than from `pageIndex`;
+   * - `scrollToPageSpringConfig` receives the target page within `[0, pageCount)`, and `isOverscroll` is always `false`;
+   * - `initialPage` is clamped to `[0, pageCount)`, not wrapped;
+   * - `scrollOffsetInterpolator`, `failActivationWhenExceedingStartEdge` and `failActivationWhenExceedingEndEdge` are ignored.
+   *
+   * Has no effect when there are less than 2 pages. Changing it at runtime remounts the pages.
+   *
+   * @default false
+   */
+  loop?: boolean;
 
   /**
    * Allows deferring page rendering until they enter the visible area.

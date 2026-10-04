@@ -13,6 +13,7 @@ import Animated, {
 import { PageIndexContext } from './contexts/PageIndexContext';
 import { useCustomClippingReceiver } from './hooks/useCustomClipping';
 import { PageWithInterpolation } from './PageWithInterpolation';
+import { PageWithLoop } from './PageWithLoop';
 import {
   type PagerViewProps,
   type PageStyleInterpolator,
@@ -40,6 +41,8 @@ type Props = PropsWithChildren<{
   pageStyleInterpolator?: PageStyleInterpolator;
   scrollPosition: SharedValue<ScrollPosition>;
   orientation: Orientation;
+  loop: boolean;
+  loopPageCount: number | null;
 }> &
   Pick<Required<PagerViewProps>, 'lazy' | 'lazyPageLimit'>;
 
@@ -56,10 +59,17 @@ const PageContainer = ({
   pageStyleInterpolator,
   scrollPosition,
   orientation,
+  loop,
+  loopPageCount,
 }: Props) => {
   const [isMounted, setIsMounted] = useState(() =>
     lazy
-      ? checkPageIndexInRange(currentPage.value, pageIndex, lazyPageLimit)
+      ? checkPageIndexInRange(
+          currentPage.value,
+          pageIndex,
+          lazyPageLimit,
+          loopPageCount,
+        )
       : true,
   );
 
@@ -70,6 +80,7 @@ const PageContainer = ({
     canRemoveClippedPages,
     isRemovingClippedPagesEnabled,
     orientation,
+    loopPageCount,
   });
 
   useAnimatedReaction(
@@ -79,6 +90,7 @@ const PageContainer = ({
         currentPage.value,
         pageIndex,
         lazyPageLimit,
+        loopPageCount,
       );
 
       if (lazy) {
@@ -121,20 +133,37 @@ const PageContainer = ({
     );
   };
 
-  if (pageStyleInterpolator) {
-    return (
-      <PageWithInterpolation
-        pageStyleInterpolator={pageStyleInterpolator}
-        scrollPosition={scrollPosition}
-        pageIndex={pageIndex}
-        pageSize={pageSize}
-      >
-        {renderPage}
-      </PageWithInterpolation>
-    );
+  const page = pageStyleInterpolator ? (
+    <PageWithInterpolation
+      pageStyleInterpolator={pageStyleInterpolator}
+      scrollPosition={scrollPosition}
+      pageIndex={pageIndex}
+      pageSize={pageSize}
+      loopPageCount={loopPageCount}
+    >
+      {renderPage}
+    </PageWithInterpolation>
+  ) : (
+    renderPage()
+  );
+
+  // Depends on the `loop` prop rather than on whether loop mode is active,
+  // so pages are not remounted when the page count crosses the loop minimum
+  if (!loop) {
+    return page;
   }
 
-  return renderPage();
+  return (
+    <PageWithLoop
+      scrollPosition={scrollPosition}
+      pageIndex={pageIndex}
+      pageSize={pageSize}
+      loopPageCount={loopPageCount}
+      orientation={orientation}
+    >
+      {page}
+    </PageWithLoop>
+  );
 };
 
 const PageContainerMemo = memo(PageContainer);

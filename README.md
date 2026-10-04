@@ -16,6 +16,7 @@ High-performance PagerView component for React Native, built on `react-native-re
 - 👀 **Visibility tracking** - track visible pages on screen
 - 🔄 **Dynamic management** - add/remove pages with automatic positioning
 - 📱 **Vertical Mode** - support for vertical scrolling
+- ♾️ **Loop Mode** - infinite scrolling where the first page follows the last one
 
 https://github.com/user-attachments/assets/121e4339-e74d-4946-8d73-4760cc221d34
 
@@ -34,6 +35,7 @@ https://github.com/user-attachments/assets/121e4339-e74d-4946-8d73-4760cc221d34
 - [🔧 ScrollableWrapper Component](#-scrollablewrapper-component)
 - [👀 Page Visibility Tracking](#-page-visibility-tracking)
 - [📱 Vertical Mode](#-vertical-mode)
+- [♾️ Loop Mode](#-loop-mode)
 - [🎯 Advanced Examples](#-advanced-examples)
   - [Custom Page Animations](#custom-page-animations)
   - [Lazy Loading](#lazy-loading)
@@ -115,6 +117,7 @@ When using scrollable components inside PagerView pages, you need to prevent ges
 | `scrollEnabled` | `boolean`                    | `true`         | Enable pager scrolling                       |
 | `pageMargin`    | `number`                     | `0`            | Margin between pages                         |
 | `orientation`   | `'horizontal' \| 'vertical'` | `'horizontal'` | Scrolling direction (horizontal or vertical) |
+| `loop`          | `boolean`                    | `false`        | Infinite scrolling, see [Loop Mode](#-loop-mode) |
 
 ### Animation Customization
 
@@ -413,6 +416,30 @@ const styles = StyleSheet.create({
   },
 });
 ```
+
+## ♾️ Loop Mode
+
+With `loop` enabled the pager becomes infinite: swiping forward from the last page brings the first one and vice versa.
+
+```tsx
+<PagerView loop onPageSelected={(page) => console.log(page)}>
+  {pages}
+</PagerView>
+```
+
+Pages are not cloned: each page is rendered once and moved to the side it is needed on, so page state is preserved.
+
+Things that work differently in loop mode:
+
+- `setPage` / `setPageWithoutAnimation` count the page from the current one: pages within `[0, pageCount)` are reached directly, like in a regular pager (e.g. tabs), and pages outside this range continue around the loop. For example, `setPage(currentPage + 1)` on the last page scrolls forward to the first one, which is handy for autoplay
+- `onPageScroll` and scroll positions passed to `style` and `pageStyleInterpolator` are in the `[0, pageCount)` range and wrap around
+- `pageOffset` in `pageStyleInterpolator` is relative to the closest copy of the page, so the same interpolators work in both modes. Compute everything from `pageOffset` (including `zIndex`): values calculated from `pageIndex`, e.g. `pageIndex - scrollPosition`, break around the loop, where the first page follows the last one
+- `usePageRelativeIndex`, `useIsOnscreenPage`, `lazy` and `removeClippedPages` take the loop into account (the last page is a neighbour of the first one)
+- `scrollOffsetInterpolator`, `failActivationWhenExceedingStartEdge` and `failActivationWhenExceedingEndEdge` are ignored, as there are no edges
+- `scrollToPageSpringConfig` receives the target page within `[0, pageCount)`, and `isOverscroll` is always `false`
+- `initialPage` is clamped to `[0, pageCount)`, not wrapped around the loop
+- Loop mode requires at least 2 pages. If `pageStyleInterpolator` shows several neighbour pages at once, there should be more pages than are visible simultaneously
+- Changing `loop` at runtime remounts the pages, the same as adding or removing `pageStyleInterpolator`
 
 ## 🎯 Advanced Examples
 

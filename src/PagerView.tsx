@@ -31,6 +31,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ActivePageStoreContext } from './contexts/ActivePageStoreContext';
+import { LoopPageCountContext } from './contexts/LoopPageCountContext';
 import { PagerContext } from './contexts/PagerContext';
 import { useScrollableWrapper } from './contexts/ScrollableWrapperContext';
 import { useCreateActivePageStore } from './hooks/useCreateActivePageStore';
@@ -46,7 +47,15 @@ import {
   type ScrollState,
   type ScrollToPageSpringConfig,
 } from './types';
-import { getChildKey, getPageOffset, isArrayEqual } from './utils';
+import {
+  getChildKey,
+  getLoopedValue,
+  getNearestLoopPage,
+  getPageOffset,
+  isArrayEqual,
+  toPageIndex,
+  toReachablePage,
+} from './utils';
 
 const NEXT_PAGE_VISIBLE_PART_THRESHOLD = 0.5;
 const DEFAULT_GESTURE_DIRECTION_TOLERANCE_DEG = 45;
@@ -88,11 +97,13 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       style,
       panVelocityThreshold = 500,
       pageStyleInterpolator,
-      scrollOffsetInterpolator,
+      scrollOffsetInterpolator: _scrollOffsetInterpolator,
       orientation = 'horizontal',
+      loop = false,
       activationDistance: gestureActivationDistance = 10,
-      failActivationWhenExceedingStartEdge,
-      failActivationWhenExceedingEndEdge,
+      failActivationWhenExceedingStartEdge:
+        _failActivationWhenExceedingStartEdge,
+      failActivationWhenExceedingEndEdge: _failActivationWhenExceedingEndEdge,
       hitSlop,
       blockParentScrollableWrapperActivation,
       blocksExternalGesture = defaultBlocksExternalGesture,
@@ -112,6 +123,20 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
     const pageCount = Children.count(children);
     const currentPage = useSharedValue(initialPage);
 
+    // In loop mode the scroll offset is unbounded (virtual), and pages are moved
+    // to the loop cycle closest to the current scroll position.
+    // The rest of the logic is the same for both modes, the differences are configured here and in utils
+    const loopPageCount = loop && pageCount > 1 ? pageCount : null;
+
+    // There are no edges in loop mode
+    const scrollOffsetInterpolator = loopPageCount
+      ? undefined
+      : _scrollOffsetInterpolator;
+    const failActivationWhenExceedingStartEdge =
+      !loopPageCount && _failActivationWhenExceedingStartEdge;
+    const failActivationWhenExceedingEndEdge =
+      !loopPageCount && _failActivationWhenExceedingEndEdge;
+
     const {
       layoutViewRef,
       contentSize,
@@ -127,6 +152,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       onUpdateLayoutValue: (nextPageSize) => {
         runOnUI(() => {
           panOffset.value = getPageOffset(currentPage.value, nextPageSize);
+          scrollTargetPage.value = currentPage.value;
         })();
       },
     });
@@ -144,6 +170,12 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
     const initialPanOffset = getPageOffset(initialPage, pageSize);
     const panOffset = useSharedValue(initialPanOffset);
     const panGestureStartOffset = useSharedValue(initialPanOffset);
+
+    // The (virtual in loop mode) page the pager is scrolling to or resting at
+    const scrollTargetPage = useSharedValue(initialPage);
+
+    const minPanOffset = loopPageCount ? -Infinity : -contentSize + pageSize;
+    const maxPanOffset = loopPageCount ? Infinity : 0;
 
     const scrollState = useSharedValue<ScrollState>('idle');
     const panGestureStartPage = useSharedValue(initialPage);
@@ -197,6 +229,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
         }
       }
 
+      // In loop mode this also brings the offset back to the first loop cycle
       const nextOffset = getPageOffset(nextPage, pageSize);
 
       const isPageChanged = nextPage !== currentPageValue;
@@ -212,6 +245,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
 
       if (isOffsetChanged) {
         panOffset.value = nextOffset;
+        scrollTargetPage.value = nextPage;
       }
     };
 
@@ -238,32 +272,50 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
           return;
         }
 
-        const clampedPage = clamp(page, 0, pageCount - 1);
+        const targetPage = toReachablePage(page, pageCount, loopPageCount);
 
-        const isOverscroll = page < 0 || page >= pageCount;
+        const isOverscroll = targetPage !== page;
 
-        const pageOffset = getPageOffset(clampedPage, pageSize);
+        const pageOffset = getPageOffset(targetPage, pageSize);
+
+        const normalizedPage = toPageIndex(
+          targetPage,
+          pageCount,
+          loopPageCount,
+        );
+
+        // The same visual position, in loop mode within the first loop cycle,
+        // so the virtual offset doesn't grow with every lap
+        const normalizedPageOffset = getPageOffset(normalizedPage, pageSize);
+
+        scrollTargetPage.value = targetPage;
 
         if (animated) {
           panOffset.value = withSpring(
             pageOffset,
-            scrollToPageSpringConfig({ isOverscroll, page: clampedPage }),
+            scrollToPageSpringConfig({ isOverscroll, page: normalizedPage }),
             (finished) => {
-              // The visible scroll position may not change while settling (e.g. when the pager
-              // is pressed against an edge), and then the scroll position reaction can't finish it
-              if (finished && scrollState.value === 'settling') {
-                if (currentPage.value !== clampedPage) {
-                  setCurrentPageAndNotify(clampedPage);
-                }
+              if (finished) {
+                panOffset.value = normalizedPageOffset;
+                scrollTargetPage.value = normalizedPage;
 
-                scrollState.value = 'idle';
+                // The visible scroll position may not change while settling (e.g. when the pager
+                // is pressed against an edge), and then the scroll position reaction can't finish it
+                if (scrollState.value === 'settling') {
+                  if (currentPage.value !== normalizedPage) {
+                    setCurrentPageAndNotify(normalizedPage);
+                  }
+
+                  scrollState.value = 'idle';
+                }
               }
 
               setRemoveClippedPages(true);
             },
           );
         } else {
-          panOffset.value = pageOffset;
+          panOffset.value = normalizedPageOffset;
+          scrollTargetPage.value = normalizedPage;
 
           setRemoveClippedPages(true);
         }
@@ -275,9 +327,11 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
         panOffset,
         setRemoveClippedPages,
         scrollToPageSpringConfig,
+        loopPageCount,
         scrollState,
         currentPage,
         setCurrentPageAndNotify,
+        scrollTargetPage,
       ],
     );
 
@@ -285,11 +339,27 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       (page: number, animated: boolean) => {
         'worklet';
 
-        const nextPage = clamp(page, 0, pageCount - 1);
+        const currentPageValue = currentPage.value;
+
+        // The copy of the current page the pager is heading to.
+        // While dragging there is no target yet, so the copy closest to the finger is used
+        const referencePage =
+          scrollState.value === 'dragging' && pageSize
+            ? -panOffset.value / pageSize
+            : scrollTargetPage.value;
+
+        // The page is counted from the current one: pages within [0, pageCount) are reached directly,
+        // and in loop mode pages outside this range continue around the loop
+        const targetPage =
+          getNearestLoopPage(currentPageValue, referencePage, loopPageCount) +
+          page -
+          currentPageValue;
+
+        const nextPage = toPageIndex(page, pageCount, loopPageCount);
 
         scrollState.value = 'idle';
 
-        if (currentPage.value !== nextPage) {
+        if (currentPageValue !== nextPage) {
           setCurrentPageAndNotify(nextPage);
         }
 
@@ -300,7 +370,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
 
         setRemoveClippedPages(false);
 
-        scrollToPage(page, animated);
+        scrollToPage(targetPage, animated);
       },
       [
         scrollState,
@@ -308,8 +378,12 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
         setCurrentPageAndNotify,
         setRemoveClippedPages,
         isLayoutHandlerCalledShared,
-        pageCount,
+        loopPageCount,
         currentPage,
+        panOffset,
+        pageSize,
+        pageCount,
+        scrollTargetPage,
       ],
     );
 
@@ -327,7 +401,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
 
     const interpolatedPanOffset = useDerivedValue(() => {
       if (!scrollOffsetInterpolator) {
-        return clamp(panOffset.value, -contentSize + pageSize, 0);
+        return clamp(panOffset.value, minPanOffset, maxPanOffset);
       }
 
       const interpolatedRelativeOffset = scrollOffsetInterpolator.interpolator({
@@ -343,6 +417,21 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       () => -interpolatedPanOffset.value / pageSize,
     );
 
+    // In loop mode the content is rendered within the first loop cycle, and pages are moved around it.
+    // At a virtual offset beyond the first cycle the content container would be completely outside
+    // the viewport, and iOS unmounts such views when it clips subviews
+    const renderedPanOffset = useDerivedValue(
+      () =>
+        -getLoopedValue(
+          -interpolatedPanOffset.value,
+          loopPageCount && contentSize,
+        ),
+    );
+
+    const renderedScrollPosition = useDerivedValue(
+      () => -renderedPanOffset.value / pageSize,
+    );
+
     useAnimatedReaction(
       () => interpolatedScrollPosition.value,
       (value) => {
@@ -350,7 +439,7 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
         const offset = value - position;
 
         if (onPageScroll) {
-          onPageScroll(value);
+          onPageScroll(getLoopedValue(value, loopPageCount));
         }
 
         if (scrollState.value === 'idle') {
@@ -360,8 +449,10 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
         if (scrollState.value === 'settling' && offset === 0) {
           scrollState.value = 'idle';
 
-          if (currentPage.value !== position) {
-            setCurrentPageAndNotify(position);
+          const settledPage = toPageIndex(position, pageCount, loopPageCount);
+
+          if (currentPage.value !== settledPage) {
+            setCurrentPageAndNotify(settledPage);
           }
 
           return;
@@ -373,7 +464,11 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
           ? offset >= pageActivationThreshold
           : 1 - offset <= pageActivationThreshold;
 
-        const nextPage = isReachedThreshold ? position + 1 : position;
+        const nextPage = toPageIndex(
+          isReachedThreshold ? position + 1 : position,
+          pageCount,
+          loopPageCount,
+        );
 
         if (currentPage.value !== nextPage) {
           setCurrentPageAndNotify(nextPage);
@@ -504,7 +599,11 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
           setRemoveClippedPages(false);
 
           panGestureStartOffset.value = panOffset.value;
-          panGestureStartPage.value = currentPage.value;
+          panGestureStartPage.value = getNearestLoopPage(
+            currentPage.value,
+            -panOffset.value / pageSize,
+            loopPageCount,
+          );
 
           scrollState.value = 'dragging';
         })
@@ -538,9 +637,16 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
           const isStart = velocity < 0;
 
           const translationProgress = -panOffset.value / pageSize;
+
+          // In loop mode progress is negative before the first page, so the positive fractional part is taken.
+          // Without loop mode `%` keeps the existing handling of overscroll beyond the first page
+          const translationProgressFraction = loopPageCount
+            ? translationProgress - Math.floor(translationProgress)
+            : translationProgress % 1;
+
           const nextPageVisiblePart = isStart
-            ? translationProgress % 1
-            : 1 - (translationProgress % 1);
+            ? translationProgressFraction
+            : 1 - translationProgressFraction;
 
           const isEnoughVelocity = Math.abs(velocity) > panVelocityThreshold;
           const isEnoughPageVisibility =
@@ -590,13 +696,14 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       panVelocityThreshold,
       scrollToPage,
       gestureAngleThreshold,
+      loopPageCount,
     ]);
 
     const pageAnimatedStyle = useAnimatedStyle(() => ({
       transform: [
         isVertical
-          ? { translateY: interpolatedPanOffset.value }
-          : { translateX: interpolatedPanOffset.value },
+          ? { translateY: renderedPanOffset.value }
+          : { translateX: renderedPanOffset.value },
       ],
     }));
 
@@ -606,8 +713,11 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       }
 
       return externalStyleFunction({
-        scrollPosition: -panOffset.value / pageSize,
-        interpolatedScrollPosition: interpolatedScrollPosition.value,
+        scrollPosition: getLoopedValue(
+          -panOffset.value / pageSize,
+          loopPageCount,
+        ),
+        interpolatedScrollPosition: renderedScrollPosition.value,
         pageSize,
       });
     });
@@ -625,8 +735,10 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
           canRemoveClippedPages={canRemoveClippedPages}
           isRemovingClippedPagesEnabled={removeClippedPages}
           pageStyleInterpolator={pageStyleInterpolator}
-          scrollPosition={interpolatedScrollPosition}
+          scrollPosition={renderedScrollPosition}
           orientation={orientation}
+          loop={loop}
+          loopPageCount={loopPageCount}
         >
           {child}
         </PageContainer>
@@ -671,7 +783,9 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
                 ]}
               >
                 <PagerContext.Provider value={pagerContextValue}>
-                  {content}
+                  <LoopPageCountContext.Provider value={loopPageCount}>
+                    {content}
+                  </LoopPageCountContext.Provider>
                 </PagerContext.Provider>
               </Animated.View>
             </View>
