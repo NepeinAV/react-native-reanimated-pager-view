@@ -267,11 +267,16 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/.xcode.env",
+				"$(SRCROOT)/.xcode.env.local",
+				"$(SRCROOT)/reactnativereanimatedpagerviewexample/reactnativereanimatedpagerviewexample.entitlements",
+				"$(SRCROOT)/Pods/Target Support Files/Pods-reactnativereanimatedpagerviewexample/expo-configure-project.sh",
 			);
 			name = "[Expo] Configure project";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(SRCROOT)/Pods/Target Support Files/Pods-reactnativereanimatedpagerviewexample/ExpoModulesProvider.swift",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
