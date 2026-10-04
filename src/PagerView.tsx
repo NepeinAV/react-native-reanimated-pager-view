@@ -285,9 +285,13 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
       (page: number, animated: boolean) => {
         'worklet';
 
+        const nextPage = clamp(page, 0, pageCount - 1);
+
         scrollState.value = 'idle';
 
-        setCurrentPageAndNotify(clamp(page, 0, pageCount - 1));
+        if (currentPage.value !== nextPage) {
+          setCurrentPageAndNotify(nextPage);
+        }
 
         // Avoid applying programmatic offsets before the first real layout measurement.
         if (!isLayoutHandlerCalledShared.value) {
@@ -305,15 +309,18 @@ const PagerView = forwardRef<PagerViewRef, PagerViewProps>(
         setRemoveClippedPages,
         isLayoutHandlerCalledShared,
         pageCount,
+        currentPage,
       ],
     );
 
     useImperativeHandle(
       ref,
       () => ({
-        setPage: (page: number) => imperativeScrollToPage(page, true),
+        // Runs on the UI thread to avoid synchronous shared value reads from the JS thread
+        // and races with the gesture and animations
+        setPage: (page: number) => runOnUI(imperativeScrollToPage)(page, true),
         setPageWithoutAnimation: (page: number) =>
-          imperativeScrollToPage(page, false),
+          runOnUI(imperativeScrollToPage)(page, false),
       }),
       [imperativeScrollToPage],
     );
