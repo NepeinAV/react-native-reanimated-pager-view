@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { View, useWindowDimensions, type LayoutRectangle } from 'react-native';
 
@@ -21,6 +21,10 @@ export const usePagerLayout = ({
 }: Params) => {
   const layoutViewRef = useRef<View>(null);
   const isLayoutHandlerCalled = useRef(false);
+  const measuredLayoutRef = useRef<Pick<
+    LayoutRectangle,
+    'width' | 'height'
+  > | null>(null);
 
   const isLayoutHandlerCalledShared = useSharedValue(false);
 
@@ -46,6 +50,8 @@ export const usePagerLayout = ({
   const updateLayoutValue = (
     layout: Pick<LayoutRectangle, 'width' | 'height'>,
   ) => {
+    measuredLayoutRef.current = layout;
+
     let nextLayoutSize = isVertical ? layout.height : layout.width;
 
     const isLayoutSizeChanged = layoutSize !== nextLayoutSize;
@@ -63,6 +69,16 @@ export const usePagerLayout = ({
       onUpdateLayoutValue(getPageSize(nextLayoutSize));
     }
   };
+
+  // Switching the orientation doesn't change the layout, so there is no new layout event
+  useEffect(() => {
+    if (measuredLayoutRef.current) {
+      updateLayoutValue(measuredLayoutRef.current);
+    }
+
+    // Only the orientation matters here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isVertical]);
 
   return {
     pageSize,
