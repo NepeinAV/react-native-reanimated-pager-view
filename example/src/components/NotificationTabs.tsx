@@ -30,7 +30,7 @@ import type { Notification } from '../types';
 
 const { width: screenWidth } = Dimensions.get('window');
 
-export const NotificationsBottomSheet = () => {
+export const NotificationTabs = () => {
   const pagerRef = useRef<PagerViewRef>(null);
   const [activeTab, setActiveTab] = useState(0);
   const [notifications, setNotifications] = useState<Notification[]>(

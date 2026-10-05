@@ -17,7 +17,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import {
   type PagerViewRef,
-  type PageStyleInterpolator,
   type ScrollPosition,
 } from 'react-native-reanimated-pager-view';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -25,27 +24,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet';
 
 import { CONSTANTS } from '../constants';
+import { cubePageInterpolator } from '../interpolators';
 import { styles as appStyles } from '../styles';
 
 import { CustomPagerView } from './CustomPagerView';
 import { FeedPage } from './FeedPage';
 import { MessagesPage } from './MessagesPage';
 import { NavigationIcon } from './NavigationIcon';
-import { NotificationsBottomSheet } from './NotificationsBottomSheet';
+import { NotificationTabs } from './NotificationTabs';
 import { Shorts } from './Shorts';
 
 const AnimatedSafeArea = Animated.createAnimatedComponent(SafeAreaView);
-
-const pageStyleInterpolator: PageStyleInterpolator = ({ pageOffset }) => {
-  'worklet';
-
-  const rotateY = interpolate(pageOffset, [-1, 0, 1], [60, 0, -60], 'clamp');
-  const scale = interpolate(pageOffset, [-1, 0, 1], [0.8, 1, 0.8], 'clamp');
-
-  return {
-    transform: [{ perspective: 1000 }, { rotateY: `${rotateY}deg` }, { scale }],
-  };
-};
 
 export const MainScreen = () => {
   const { width: screenWidth } = useWindowDimensions();
@@ -162,7 +151,7 @@ export const MainScreen = () => {
             loop
             onPageScroll={onPageScroll}
             removeClippedPages={false}
-            pageStyleInterpolator={pageStyleInterpolator}
+            pageStyleInterpolator={cubePageInterpolator}
             scrollEnabled
             lazy
           >
@@ -203,7 +192,7 @@ export const MainScreen = () => {
           handleIndicatorStyle={headerStyles.handleIndicator}
         >
           <BottomSheetView style={headerStyles.bottomSheetContent}>
-            <NotificationsBottomSheet />
+            <NotificationTabs />
           </BottomSheetView>
         </BottomSheetModal>
       </AnimatedSafeArea>
