@@ -3,6 +3,7 @@
     "name": "react-native-reanimated-pager-view-example",
     "slug": "react-native-reanimated-pager-view-example",
     "version": "1.0.0",
+    "scheme": "reanimatedpagerview.example",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
