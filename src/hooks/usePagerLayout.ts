@@ -80,6 +80,21 @@ export const usePagerLayout = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isVertical]);
 
+  // Changing the page margin changes the page size but not the layout, so there is no new layout event
+  useEffect(() => {
+    const layout = measuredLayoutRef.current;
+
+    // The measured layout is used instead of layoutSize, which is stale if the orientation changed in the same render
+    if (layout) {
+      onUpdateLayoutValue(
+        getPageSize(isVertical ? layout.height : layout.width),
+      );
+    }
+
+    // Only the page margin matters here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageMargin]);
+
   return {
     pageSize,
     contentSize,
