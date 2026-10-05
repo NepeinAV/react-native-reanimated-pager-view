@@ -1,12 +1,6 @@
 import { useMemo, useCallback } from 'react';
 
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 
 import Animated, {
   useSharedValue,
@@ -21,30 +15,17 @@ import {
 } from 'react-native-reanimated-pager-view';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import {
-  useNavigation,
-  useRoute,
-  type RouteProp,
-  type NavigationProp,
-} from '@react-navigation/native';
+import { useRoute, type RouteProp } from '@react-navigation/native';
 
 import { CONSTANTS } from '../constants';
 
 import { Avatar } from './Avatar';
 import { CustomPagerView } from './CustomPagerView';
 
+import type { RootStackParamList } from '../navigation';
 import type { Post } from '../types';
 
-export type RootStackParamList = {
-  Main: undefined;
-  PostDetail: {
-    post: Post;
-    allPosts: Post[];
-  };
-};
-
 type PostDetailRouteProp = RouteProp<RootStackParamList, 'PostDetail'>;
-type PostDetailNavigationProp = NavigationProp<RootStackParamList>;
 
 const PostDetailPage: React.FC<{ post: Post }> = ({ post }) => {
   return (
@@ -90,6 +71,8 @@ const PostDetailPage: React.FC<{ post: Post }> = ({ post }) => {
 
 const pagerViewSwipeBackArea = { left: -30 };
 
+const safeAreaEdges = ['bottom', 'left', 'right'] as const;
+
 const PageIndicator: React.FC<{
   totalPages: number;
   scrollPosition: SharedValue<number>;
@@ -134,7 +117,6 @@ const PageDot: React.FC<{
 };
 
 export const PostDetailScreen: React.FC = () => {
-  const navigation = useNavigation<PostDetailNavigationProp>();
   const route = useRoute<PostDetailRouteProp>();
 
   const { post, allPosts } = route.params;
@@ -161,16 +143,8 @@ export const PostDetailScreen: React.FC = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={navigation.goBack} style={styles.backButton}>
-          <Text style={styles.backIcon}>←</Text>
-          <Text style={styles.backText}>Back</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Posts</Text>
-        <View style={styles.headerSpacer} />
-      </View>
-
+    // The top inset is handled by the navigation header
+    <SafeAreaView edges={safeAreaEdges} style={styles.container}>
       <CustomPagerView
         style={styles.pager}
         initialPage={initialIndex}
@@ -195,39 +169,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: CONSTANTS.COLORS.BACKGROUND_PRIMARY,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: CONSTANTS.COLORS.BORDER_COLOR,
-    backgroundColor: CONSTANTS.COLORS.BACKGROUND_PRIMARY,
-  },
-  backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 8,
-  },
-  backIcon: {
-    fontSize: 20,
-    color: CONSTANTS.COLORS.ACCENT_BLUE,
-    marginRight: 4,
-  },
-  backText: {
-    fontSize: 16,
-    color: CONSTANTS.COLORS.ACCENT_BLUE,
-    fontWeight: '500',
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: CONSTANTS.COLORS.TEXT_PRIMARY,
-  },
-  headerSpacer: {
-    width: 60, // Balance the back button width
   },
   pager: {
     flex: 1,

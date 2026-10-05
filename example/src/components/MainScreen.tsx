@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useRef } from 'react';
+import { useMemo, useCallback, useLayoutEffect, useRef } from 'react';
 
 import {
   StatusBar,
@@ -22,6 +22,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet';
+import { useNavigation } from '@react-navigation/native';
 
 import { CONSTANTS } from '../constants';
 import { cubePageInterpolator } from '../interpolators';
@@ -36,7 +37,22 @@ import { Shorts } from './Shorts';
 
 const AnimatedSafeArea = Animated.createAnimatedComponent(SafeAreaView);
 
+const swipeBackArea = { left: -30 };
+
+const safeAreaEdges = ['bottom', 'left', 'right'] as const;
+
+const createNotificationsButton = (onPress: () => void) => () => (
+  <TouchableOpacity
+    onPress={onPress}
+    hitSlop={8}
+    style={headerStyles.notificationButton}
+  >
+    <Text style={headerStyles.notificationIcon}>🔔</Text>
+  </TouchableOpacity>
+);
+
 export const MainScreen = () => {
+  const navigation = useNavigation();
   const { width: screenWidth } = useWindowDimensions();
 
   const pagerScrollPosition = useSharedValue(0);
@@ -98,6 +114,12 @@ export const MainScreen = () => {
     notificationsBottomSheetRef.current?.present();
   }, []);
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: createNotificationsButton(openNotifications),
+    });
+  }, [navigation, openNotifications]);
+
   const goToPage = useCallback(
     (pageIndex: number) => {
       if (pageIndex < 0 || pageIndex >= pages.length) return;
@@ -134,21 +156,17 @@ export const MainScreen = () => {
   return (
     <>
       <StatusBar translucent />
-      <AnimatedSafeArea style={[appStyles.safeArea, backgroundAnimatedStyle]}>
+      {/* The top inset is handled by the navigation header */}
+      <AnimatedSafeArea
+        edges={safeAreaEdges}
+        style={[appStyles.safeArea, backgroundAnimatedStyle]}
+      >
         <View style={appStyles.safeAreaContent}>
-          <Animated.View style={[appStyles.header, backgroundAnimatedStyle]}>
-            <Text style={appStyles.headerTitle}>Connect</Text>
-            <TouchableOpacity
-              style={headerStyles.notificationButton}
-              onPress={openNotifications}
-            >
-              <Text style={headerStyles.notificationIcon}>🔔</Text>
-            </TouchableOpacity>
-          </Animated.View>
-
           <CustomPagerView
             ref={ref}
             loop
+            // Leaves the screen edge to the swipe-back gesture
+            hitSlop={swipeBackArea}
             onPageScroll={onPageScroll}
             removeClippedPages={false}
             pageStyleInterpolator={cubePageInterpolator}
@@ -202,12 +220,15 @@ export const MainScreen = () => {
 
 const headerStyles = StyleSheet.create({
   notificationButton: {
-    padding: 8,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   notificationIcon: {
     fontSize: 20,
+    lineHeight: 24,
+    textAlign: 'center',
   },
   bottomSheetBackground: {
     backgroundColor: CONSTANTS.COLORS.BACKGROUND_PRIMARY,

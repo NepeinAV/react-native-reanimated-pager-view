@@ -8,26 +8,11 @@ export const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    paddingVertical: CONSTANTS.SPACING.SMALL,
+    paddingBottom: CONSTANTS.SPACING.SMALL,
   },
   safeAreaContent: {
     flex: 1,
     backgroundColor: CONSTANTS.COLORS.BACKGROUND_PRIMARY,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingBottom: 15,
-    borderBottomWidth: 0.33,
-    borderBottomColor: 'rgba(84, 84, 88, 0.6)',
-  },
-  headerTitle: {
-    fontSize: 34,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    letterSpacing: 0.37,
   },
   page: {
     flex: 1,
