@@ -24,7 +24,6 @@ export const cardStackPageInterpolator: PageStyleInterpolator = ({
   pageOffset,
   pageIndex,
   pageSize,
-  scrollPosition,
 }) => {
   'worklet';
 
@@ -32,10 +31,8 @@ export const cardStackPageInterpolator: PageStyleInterpolator = ({
     return {
       transform: [
         {
-          translateX:
-            pageIndex * -pageSize +
-            16 * (pageIndex - scrollPosition) +
-            scrollPosition * pageSize,
+          // Holds the pages ahead in place, 16pt apart from each other
+          translateX: -pageOffset * pageSize + 16 * pageOffset,
         },
         {
           scale: interpolate(pageOffset, [0, 1], [1, 0.965]),
