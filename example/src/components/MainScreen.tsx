@@ -10,6 +10,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 
+import { BorderlessButton } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -50,14 +51,16 @@ const renderBackdrop = (props: BottomSheetBackdropProps) => (
   <BottomSheetBackdrop {...props} appearsOnIndex={0} disappearsOnIndex={-1} />
 );
 
+// A native button (UIControl) on iOS swallows the tap, otherwise the navigation bar
+// also handles it and scrolls the feed to the top
 const createNotificationsButton = (onPress: () => void) => () => (
-  <TouchableOpacity
+  <BorderlessButton
     onPress={onPress}
     hitSlop={8}
     style={headerStyles.notificationButton}
   >
     <Text style={headerStyles.notificationIcon}>🔔</Text>
-  </TouchableOpacity>
+  </BorderlessButton>
 );
 
 export const MainScreen = () => {
