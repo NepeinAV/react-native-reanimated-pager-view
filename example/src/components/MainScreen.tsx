@@ -21,7 +21,12 @@ import {
 } from 'react-native-reanimated-pager-view';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet';
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  BottomSheetView,
+  type BottomSheetBackdropProps,
+} from '@gorhom/bottom-sheet';
 import { useNavigation } from '@react-navigation/native';
 
 import { CONSTANTS } from '../constants';
@@ -40,6 +45,10 @@ const AnimatedSafeArea = Animated.createAnimatedComponent(SafeAreaView);
 const swipeBackArea = { left: -30 };
 
 const safeAreaEdges = ['bottom', 'left', 'right'] as const;
+
+const renderBackdrop = (props: BottomSheetBackdropProps) => (
+  <BottomSheetBackdrop {...props} appearsOnIndex={0} disappearsOnIndex={-1} />
+);
 
 const createNotificationsButton = (onPress: () => void) => () => (
   <TouchableOpacity
@@ -206,6 +215,7 @@ export const MainScreen = () => {
         <BottomSheetModal
           ref={notificationsBottomSheetRef}
           enableDynamicSizing
+          backdropComponent={renderBackdrop}
           backgroundStyle={headerStyles.bottomSheetBackground}
           handleIndicatorStyle={headerStyles.handleIndicator}
         >
